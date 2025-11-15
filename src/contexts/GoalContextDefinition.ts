@@ -1,12 +1,12 @@
 // src/contexts/GoalContextDefinition.ts
 import { createContext } from 'react';
-import type { Goal } from '../types';
+import { type Goal } from '../types';
 
-// --- CONTEXT TYPE DEFINITION ---
-export type GoalContextType = {
+export interface GoalContextType {
   goals: Goal[];
-  addGoal: (newGoalData: Partial<Goal>) => void;
-};
+  addGoal: (goal: Omit<Goal, 'id'>) => void;
+  updateGoal: (id: string, updates: Partial<Goal>) => void;
+  deleteGoal: (id: string) => void;
+}
 
-// --- CREATE CONTEXT ---
 export const GoalContext = createContext<GoalContextType | undefined>(undefined);

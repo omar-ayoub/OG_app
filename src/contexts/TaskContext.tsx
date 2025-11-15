@@ -1,5 +1,5 @@
 // src/contexts/TaskContext.tsx
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode, useCallback } from 'react';
 import type { Task, Category } from '../types';
 import { TaskContext } from './TaskContextDefinition';
 
@@ -61,9 +61,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   };
 
-  const getTask = (taskId: number): Task | undefined => {
+  const getTask = useCallback((taskId: number): Task | undefined => {
     return tasks.find((task) => task.id === taskId);
-  };
+  }, [tasks]);
 
   const addCategory = (newCategory: Category) => {
     setCategories((prevCategories) => [...prevCategories, newCategory]);

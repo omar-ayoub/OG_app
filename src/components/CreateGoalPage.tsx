@@ -2,19 +2,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoals } from '../contexts/useGoals';
-import { useTasks } from '../contexts/useTasks'; // To get incomplete tasks
+import { useTasks } from '../contexts/useTasks';
 
 function CreateGoalPage() {
   const navigate = useNavigate();
   const { addGoal } = useGoals();
-  const { tasks, addTask, categories } = useTasks(); // Get all tasks and addTask
+  const { tasks, addTask, categories } = useTasks();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetDate, setTargetDate] = useState('');
-  const [resources, setResources] = useState('');
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
-  const [newTaskText, setNewTaskText] = useState(''); // For adding new tasks directly
+  const [newTaskText, setNewTaskText] = useState('');
 
   const incompleteTasks = tasks.filter(task => !task.isCompleted);
 
@@ -23,16 +22,14 @@ function CreateGoalPage() {
       alert('Please enter a goal title.');
       return;
     }
-
     addGoal({
       title,
       description,
       targetDate,
       tasks: selectedTaskIds,
-      completed: false, // Goals are initially not completed
+      completed: false,
     });
-
-    navigate('/'); // Navigate back to dashboard
+    navigate('/');
   };
 
   const handleTaskSelection = (taskId: number) => {
@@ -43,92 +40,94 @@ function CreateGoalPage() {
 
   const handleAddNewTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newTaskText.trim()) {
-      const defaultCategory = categories[0]; // Use the first category as default
+      e.preventDefault(); // Prevent form submission
+      const defaultCategory = categories[0];
+      if (!defaultCategory) {
+        alert('Cannot add task: No categories found.');
+        return;
+      }
       const newTaskId = addTask({
         text: newTaskText.trim(),
-        time: 'Anytime', // Default time
+        time: 'Anytime',
         tag: defaultCategory.name,
         tagColor: defaultCategory.color,
         isCompleted: false,
       });
       setSelectedTaskIds((prev) => [...prev, newTaskId]);
-      setNewTaskText(''); // Clear the input field
+      setNewTaskText('');
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/30">
-      <div className="flex h-[95dvh] max-h-[880px] w-full flex-col overflow-y-auto rounded-t-xl bg-background-light dark:bg-background-dark shadow-2xl">
-        <div className="sticky top-0 z-10 flex h-16 items-center border-b border-border-light dark:border-border-dark bg-background-light/80 dark:bg-background-dark/80 px-4 backdrop-blur-sm">
-          <button onClick={() => navigate(-1)} className="flex items-center justify-start text-base font-medium text-primary">Cancel</button>
+    <div className="fixed inset-0 bg-background-light dark:bg-background-dark z-20">
+      <div className="flex h-full w-full flex-col">
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-background-light/80 p-4 pb-2 backdrop-blur-sm dark:bg-background-dark/80">
+          <button onClick={() => navigate(-1)} className="flex items-center justify-start">
+            <p className="shrink-0 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Cancel</p>
+          </button>
           <h2 className="flex-1 text-center text-lg font-bold leading-tight tracking-[-0.015em] text-text-light-primary dark:text-text-dark-primary">New Goal</h2>
-          <button onClick={handleCreateGoal} className="flex items-center justify-end text-base font-bold text-primary">Create</button>
+          <button onClick={handleCreateGoal} className="flex items-center justify-end">
+            <p className="shrink-0 text-base font-bold leading-normal tracking-[0.015em] text-primary">Create</p>
+          </button>
         </div>
-        <div className="flex-1 pb-4">
-          <div className="flex flex-col gap-y-4 p-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="px-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary" htmlFor="goal-title">Goal Title</label>
-              <input
-                className="w-full rounded-lg border-border-light bg-card-light px-4 py-3 text-base text-text-light-primary placeholder:text-text-light-secondary/70 focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-card-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary/70"
-                id="goal-title"
-                placeholder="e.g. Learn Advanced UI Design"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-4 pt-2">
+          <div className="flex flex-col gap-4">
+            {/* Goal Title Input */}
+            <input
+              className="form-input h-16 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl border-none bg-card-light p-4 text-2xl font-bold leading-tight tracking-[-0.015em] text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-2 focus:ring-primary/50 dark:bg-card-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+              placeholder="e.g., Learn Advanced UI Design"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            {/* Details Section */}
+            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+              {/* Description */}
+              <label className="flex flex-1 flex-col">
+                <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Description</p>
+                <textarea
+                  className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                  placeholder="Add a description..."
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                ></textarea>
+              </label>
+
+              {/* Target Date */}
+              <label className="flex flex-1 flex-col">
+                <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Target Date</p>
+                <div className="relative">
+                  <input
+                    type="date"
+                    className="form-input flex h-14 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 pr-12 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                    value={targetDate}
+                    onChange={(e) => setTargetDate(e.target.value)}
+                  />
+                  <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">calendar_today</span>
+                </div>
+              </label>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="px-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary" htmlFor="description">Description</label>
-              <textarea
-                className="w-full rounded-lg border-border-light bg-card-light px-4 py-3 text-base text-text-light-primary placeholder:text-text-light-secondary/70 focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-card-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary/70"
-                id="description"
-                placeholder="Add a description..."
-                rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              ></textarea>
-            </div>
-            <button className="flex w-full items-center justify-between rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-4 text-left">
-              <div className="flex items-center gap-x-3">
-                <span className="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">calendar_month</span>
-                <span className="text-base font-medium text-text-light-primary dark:text-text-dark-primary">Set Target Date</span>
-              </div>
-              <input
-                type="date"
-                className="absolute inset-0 opacity-0 cursor-pointer"
-                value={targetDate}
-                onChange={(e) => setTargetDate(e.target.value)}
-              />
-              <span className="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">chevron_right</span>
-            </button>
-          </div>
-          <div className="px-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="px-1 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary" htmlFor="resources">Resources</label>
-              <textarea
-                className="w-full rounded-lg border-border-light bg-card-light px-4 py-3 text-base text-text-light-primary placeholder:text-text-light-secondary/70 focus:border-primary focus:ring-primary dark:border-border-dark dark:bg-card-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary/70"
-                id="resources"
-                placeholder="Add links, notes, or files..."
-                rows={3}
-                value={resources}
-                onChange={(e) => setResources(e.target.value)}
-              ></textarea>
-            </div>
-            <div className="mt-4">
-              <label className="px-1 pb-2 text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">Tasks</label>
-              <div className="mt-1.5 flex flex-col divide-y divide-border-light rounded-lg border border-border-light bg-card-light dark:divide-border-dark dark:border-border-dark dark:bg-card-dark">
+
+            {/* Tasks Section */}
+            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+              <label className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Tasks</label>
+              <div className="flex flex-col divide-y divide-border-light rounded-lg border border-border-light bg-input-light dark:divide-border-dark dark:border-border-dark dark:bg-input-dark">
                 {incompleteTasks.map((task) => (
-                  <div key={task.id} className="flex items-center gap-x-3 p-4">
+                  <div key={task.id} className="flex items-center gap-x-3 p-3">
                     <input
                       type="checkbox"
-                      className="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary"
+                      className="form-checkbox h-5 w-5 rounded text-primary focus:ring-primary"
                       checked={selectedTaskIds.includes(task.id)}
                       onChange={() => handleTaskSelection(task.id)}
                     />
                     <span className="flex-1 text-base text-text-light-primary dark:text-text-dark-primary">{task.text}</span>
                   </div>
                 ))}
-                <div className="flex items-center gap-x-3 p-4">
+                <div className="flex items-center gap-x-3 p-3">
                   <span className="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">add</span>
                   <input
                     className="flex-1 border-0 bg-transparent p-0 text-base text-text-light-primary placeholder:text-text-light-secondary/70 focus:ring-0 dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary/70"
@@ -142,7 +141,7 @@ function CreateGoalPage() {
               </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

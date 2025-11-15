@@ -1,31 +1,35 @@
 // src/contexts/GoalContext.tsx
-import { useState, type ReactNode } from 'react';
-import type { Goal } from '../types';
-import { GoalContext } from './GoalContextDefinition'; // Only import the context, not the type
+import { useState, useEffect, type ReactNode } from 'react';
+import { type Goal } from '../types';
+import { GoalContext } from './GoalContextDefinition';
 
-// --- MOCK DATA ---
-const MOCK_GOALS: Goal[] = [
-  { id: 'g1', title: 'Learn Advanced UI Design', description: 'Complete a course on Udemy', targetDate: '2025-12-31', tasks: [1, 2], completed: false },
-  { id: 'g2', title: 'Launch a Side Project', description: 'Develop and deploy the organizer app', targetDate: '2026-01-31', tasks: [3, 4], completed: false },
-];
+export const GoalProvider = ({ children }: { children: ReactNode }) => {
+  const [goals, setGoals] = useState<Goal[]>(() => {
+    const savedGoals = localStorage.getItem('goals');
+    return savedGoals ? JSON.parse(savedGoals) : [];
+  });
 
-// --- PROVIDER COMPONENT ---
-export function GoalProvider({ children }: { children: ReactNode }) {
-  const [goals, setGoals] = useState(MOCK_GOALS);
+  useEffect(() => {
+    localStorage.setItem('goals', JSON.stringify(goals));
+  }, [goals]);
 
-  const addGoal = (newGoalData: Partial<Goal>) => {
-    const newGoal: Goal = {
-      ...newGoalData,
-      id: `g${Date.now()}`,
-      completed: false,
-    } as Goal;
-    setGoals((prevGoals) => [newGoal, ...prevGoals]);
+  const addGoal = (goal: Omit<Goal, 'id'>) => {
+    setGoals((prevGoals) => [...prevGoals, { ...goal, id: Date.now().toString() }]);
   };
 
-  const value = {
-    goals,
-    addGoal,
+  const updateGoal = (id: string, updates: Partial<Goal>) => {
+    setGoals((prevGoals) =>
+      prevGoals.map((goal) => (goal.id === id ? { ...goal, ...updates } : goal))
+    );
   };
 
-  return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>;
-}
+  const deleteGoal = (id: string) => {
+    setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== id));
+  };
+
+  return (
+    <GoalContext.Provider value={{ goals, addGoal, updateGoal, deleteGoal }}>
+      {children}
+    </GoalContext.Provider>
+  );
+};

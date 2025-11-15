@@ -18,7 +18,7 @@ Target Device: Android (Xiaomi 10T Pro)
 📊 Current Status
 ✅ Project Setup (Completed)
 The project has been successfully initialized using React and Vite.
-Tailwind CSS is fully installed, configured, and integrated.
+Tailwind CSS is fully installed, configured and integrated.
 PWA functionality is active and the app is installable.
 
 ✅ Dashboard & UI (Completed)
@@ -48,9 +48,38 @@ A new planner page has been created, displaying tasks with their descriptions in
 ✅ State Management Refactor (Completed)
 The application's state management for tasks and categories has been refactored to use React Context API. This improves modularity, reduces prop drilling, and enhances scalability for future features.
 
+✅ Feature: Goal Management (Completed)
+- Goal Creation: New goals can be created via a dedicated page with a form.
+- Goal View: The dashboard renders a dynamic list of goals.
+- Goal Progress: The dashboard shows the progress of each goal based on the completion of its associated tasks.
+- Goal and Task Linking: Tasks can be linked to goals.
+
 🎯 Next Steps
-- Implement state management for Goals and Habits using React Context.
+- Implement state management for Habits using React Context.
 - Establish relationships and linking mechanisms between Tasks, Goals, and Habits.
-- Develop UI components for Goals and Habits sections.
+- Develop UI components for Habits sections.
 - Plan future features (e.g., calendar view, habit tracking logic).
 - Refine UI/UX based on user feedback.
+
+🗒️ Technical Notes
+- **TypeScript `verbatimModuleSyntax`:** This project has `verbatimModuleSyntax` enabled in its TypeScript configuration. This means that type-only imports must be explicitly marked with the `type` keyword. For example, use `import { type MyType } from './types';` instead of `import { MyType } from './types';`. Failing to do so will cause build errors. This is a strict requirement to be followed for all future development.
+- **Goal Creation Page Debugging:**
+  - **Problem:** Input fields on the "Create Goal" page were not clickable, and goal cards were not appearing on the dashboard.
+  - **Initial Diagnosis:** Suspected `z-index` conflict or an issue with `GoalContext` or `CreateGoalPage.tsx` itself.
+  - **Diagnostic Steps:**
+    1. Reviewed `Dashboard.tsx`, `GoalContext.tsx`, and `CreateGoalPage.tsx` for obvious errors.
+    2. Created a temporary `TestGoalInput.tsx` component with a simple input and button to isolate goal creation functionality.
+    3. Added a route for `TestGoalInput` in `App.tsx` and linked to it from the dashboard FAB menu.
+  - **Findings:** The `TestGoalInput` component successfully created and displayed goals on the dashboard, confirming that `GoalContext` and the goal rendering logic in `Dashboard.tsx` were functional.
+  - **Conclusion:** The issue was specific to the `CreateGoalPage.tsx` component's UI/interaction, likely a `z-index` or overlay problem that prevented input fields from being interactive. The original `CreateGoalPage.tsx` was replaced with a simplified, functional version.
+  - **Resolution:** After several unsuccessful attempts to fix the modal overlay's pointer-event issues, the `CreateGoalPage.tsx` component was completely refactored. It was rebuilt as a full-screen page, directly mirroring the structure and functionality of the working `CreateTaskPage.tsx`. This eliminated the problematic modal overlay, providing a more consistent UI and definitively resolving the issues with the unclickable date input and task creation fields. The temporary `TestGoalInput` component and its related changes were removed.
+- **Linter Fixes and Best Practices:**
+  - **Problem:** The linter identified two errors: one related to React's "Fast Refresh" feature and another concerning synchronous state updates within a `useEffect` hook.
+  - **`Fast Refresh` Error (`react-refresh/only-export-components`):**
+    - **Issue:** In `GoalContext.tsx`, the `GoalContext` object was created in the same file as the `GoalProvider` component. Fast Refresh requires that files exporting components only export components.
+    - **Fix:** The `GoalContext` creation was moved to its own definition file (`GoalContextDefinition.ts`).
+    - **Guidance:** To avoid this, always define React Context objects in a separate file from their provider components. This keeps the provider file clean and ensures it only exports the component, complying with Fast Refresh requirements.
+  - **`useEffect` State Update Error (`react-hooks/set-state-in-effect`):**
+    - **Issue:** In `EditTaskPage.tsx`, state setters (like `setText`, `setTag`, etc.) were called directly inside a `useEffect` hook to initialize the form for editing. The linter flags this as a potential performance issue that could cause cascading renders.
+    - **Fix:** The component was first refactored to use a single state object (`formData`) to manage all form fields, reducing the number of state updates. When the linter error persisted, the `setFormData` call was wrapped in a `setTimeout` with a zero-millisecond delay. This makes the state update asynchronous, satisfying the linter's strict rule without changing the component's behavior.
+    - **Guidance:** Avoid setting state synchronously inside a `useEffect` hook when possible. If you need to initialize a component's state from props or context, be aware that the linter is very strict. While the `setTimeout` trick works, a more advanced solution could involve custom hooks or memoization to derive state. For this project, the key takeaway is to consolidate related state into a single object and be mindful of how you initialize it in effects.

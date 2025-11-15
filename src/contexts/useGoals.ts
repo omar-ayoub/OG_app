@@ -1,11 +1,12 @@
 // src/contexts/useGoals.ts
 import { useContext } from 'react';
-import { GoalContext } from './GoalContextDefinition'; // Import from definition file
+import { GoalContext } from './GoalContextDefinition';
+import { type GoalContextType } from './GoalContextDefinition';
 
-export function useGoals() {
+export const useGoals = (): GoalContextType => {
   const context = useContext(GoalContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useGoals must be used within a GoalProvider');
   }
   return context;
-}
+};
