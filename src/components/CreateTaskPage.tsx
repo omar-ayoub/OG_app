@@ -1,10 +1,11 @@
 // src/components/CreateTaskPage.tsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTasks } from '../contexts/useTasks';
 
 function CreateTaskPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { addTask, categories } = useTasks();
 
   const [text, setText] = useState('');
@@ -25,15 +26,23 @@ function CreateTaskPage() {
       return;
     }
 
-    addTask({
+    const newTaskId = addTask({
       text,
       time: time || 'Anytime',
       startDate,
       tag: selectedCategory.name,
       tagColor: selectedCategory.color,
+      description,
     });
 
-    navigate('/');
+    const from = location.state?.from;
+    const goalData = location.state?.goalData;
+
+    if (from === '/create-goal') {
+      navigate(from, { state: { newTaskId, goalData } });
+    } else {
+      navigate('/');
+    }
   };
 
   return (
