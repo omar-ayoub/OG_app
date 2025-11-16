@@ -53,6 +53,7 @@ The application's state management for tasks and categories has been refactored 
 - Goal View: The dashboard renders a dynamic list of goals.
 - Goal Progress: The dashboard shows the progress of each goal based on the completion of its associated tasks.
 - Goal and Task Linking: Tasks can be linked to goals.
+- Task Creation from Goal: Users can now create new tasks directly from the goal creation page.
 
 🎯 Next Steps
 - Implement state management for Habits using React Context.

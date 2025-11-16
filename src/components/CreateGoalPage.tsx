@@ -1,21 +1,37 @@
 // src/components/CreateGoalPage.tsx
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useGoals } from '../contexts/useGoals';
 import { useTasks } from '../contexts/useTasks';
 
 function CreateGoalPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { addGoal } = useGoals();
-  const { tasks, addTask, categories } = useTasks();
+  const { tasks } = useTasks();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetDate, setTargetDate] = useState('');
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
-  const [newTaskText, setNewTaskText] = useState('');
 
   const incompleteTasks = tasks.filter(task => !task.isCompleted);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (location.state?.newTaskId) {
+        const newSelectedTaskIds = [...(location.state.goalData.selectedTaskIds || []), location.state.newTaskId];
+        setSelectedTaskIds(newSelectedTaskIds);
+      }
+      if (location.state?.goalData) {
+        setTitle(location.state.goalData.title || '');
+        setDescription(location.state.goalData.description || '');
+        setTargetDate(location.state.goalData.targetDate || '');
+        setSelectedTaskIds(location.state.goalData.selectedTaskIds || []);
+      }
+    }, 0);
+  }, [location.state]);
+
 
   const handleCreateGoal = () => {
     if (!title.trim()) {
@@ -38,24 +54,13 @@ function CreateGoalPage() {
     );
   };
 
-  const handleAddNewTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && newTaskText.trim()) {
-      e.preventDefault(); // Prevent form submission
-      const defaultCategory = categories[0];
-      if (!defaultCategory) {
-        alert('Cannot add task: No categories found.');
-        return;
-      }
-      const newTaskId = addTask({
-        text: newTaskText.trim(),
-        time: 'Anytime',
-        tag: defaultCategory.name,
-        tagColor: defaultCategory.color,
-        isCompleted: false,
-      });
-      setSelectedTaskIds((prev) => [...prev, newTaskId]);
-      setNewTaskText('');
-    }
+  const handleAddNewTaskClick = () => {
+    navigate('/create-task', {
+      state: {
+        from: '/create-goal',
+        goalData: { title, description, targetDate, selectedTaskIds },
+      },
+    });
   };
 
   return (
@@ -128,15 +133,13 @@ function CreateGoalPage() {
                   </div>
                 ))}
                 <div className="flex items-center gap-x-3 p-3">
-                  <span className="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">add</span>
-                  <input
-                    className="flex-1 border-0 bg-transparent p-0 text-base text-text-light-primary placeholder:text-text-light-secondary/70 focus:ring-0 dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary/70"
-                    placeholder="Add a new task"
-                    type="text"
-                    value={newTaskText}
-                    onChange={(e) => setNewTaskText(e.target.value)}
-                    onKeyDown={handleAddNewTask}
-                  />
+                  <button
+                    onClick={handleAddNewTaskClick}
+                    className="flex w-full items-center gap-x-3 text-text-light-primary dark:text-text-dark-primary"
+                  >
+                    <span className="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">add</span>
+                    <span className="text-base">Add a new task</span>
+                  </button>
                 </div>
               </div>
             </div>
