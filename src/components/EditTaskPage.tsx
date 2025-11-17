@@ -74,7 +74,14 @@ function EditTaskPage() {
       addTask(taskData);
     }
 
-    navigate('/');
+    const from = location.state?.from;
+    const goalData = location.state?.goalData;
+
+    if (from === `/goal-details/${goalData?.id}`) {
+      navigate(from, { state: { goalData } });
+    } else {
+      navigate('/');
+    }
   };
 
   return (

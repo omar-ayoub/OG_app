@@ -7,7 +7,7 @@ import { useTasks } from '../contexts/useTasks';
 function CreateGoalPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { addGoal } = useGoals();
+  const { addGoal, goals } = useGoals();
   const { tasks } = useTasks();
 
   const [title, setTitle] = useState('');
@@ -15,19 +15,26 @@ function CreateGoalPage() {
   const [targetDate, setTargetDate] = useState('');
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
 
-  const incompleteTasks = tasks.filter(task => !task.isCompleted);
+  const assignedTaskIds = new Set(goals.flatMap(goal => goal.tasks));
+
+  const incompleteTasks = tasks.filter(task => 
+    !task.isCompleted && 
+    (!assignedTaskIds.has(task.id) || selectedTaskIds.includes(task.id))
+  );
 
   useEffect(() => {
     setTimeout(() => {
-      if (location.state?.newTaskId) {
-        const newSelectedTaskIds = [...(location.state.goalData.selectedTaskIds || []), location.state.newTaskId];
-        setSelectedTaskIds(newSelectedTaskIds);
-      }
       if (location.state?.goalData) {
-        setTitle(location.state.goalData.title || '');
-        setDescription(location.state.goalData.description || '');
-        setTargetDate(location.state.goalData.targetDate || '');
-        setSelectedTaskIds(location.state.goalData.selectedTaskIds || []);
+        const { goalData, newTaskId } = location.state;
+        setTitle(goalData.title || '');
+        setDescription(goalData.description || '');
+        setTargetDate(goalData.targetDate || '');
+
+        let taskIds = goalData.selectedTaskIds || [];
+        if (newTaskId && !taskIds.includes(newTaskId)) {
+          taskIds = [...taskIds, newTaskId];
+        }
+        setSelectedTaskIds(taskIds);
       }
     }, 0);
   }, [location.state]);

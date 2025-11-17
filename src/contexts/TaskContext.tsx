@@ -12,10 +12,10 @@ const MOCK_CATEGORIES: Category[] = [
 ];
 
 const MOCK_TASKS: Task[] = [
-  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
-  { id: 2, text: 'Review design system', time: '2:00 PM', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
-  { id: 3, text: 'Setup development environment', time: '9:00 AM', tag: 'Learning', tagColor: '#8b5cf6', isCompleted: false },
-  { id: 4, text: 'Deploy to production', time: 'Anytime', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
+  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
+  { id: 2, text: 'Review design system', time: '2:00 PM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
+  { id: 3, text: 'Setup development environment', time: '9:00 AM', startDate: '2025-11-18', tag: 'Learning', tagColor: '#8b5cf6', isCompleted: false },
+  { id: 4, text: 'Deploy to production', time: 'Anytime', startDate: '2025-11-19', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
 ];
 
 // --- PROVIDER COMPONENT ---

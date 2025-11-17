@@ -1,8 +1,26 @@
+import { useState } from 'react';
 import { useTasks } from '../contexts/useTasks';
 import { Link } from 'react-router-dom';
 
 function PlannerPage() {
   const { tasks } = useTasks();
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+  const getWeekDays = (date: Date) => {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)); // Adjust to start on Monday
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(startOfWeek);
+      day.setDate(startOfWeek.getDate() + i);
+      days.push(day);
+    }
+    return days;
+  };
+
+  const weekDays = getWeekDays(currentDate);
 
   // Helper to convert time string (e.g., "10:00 AM") to minutes from midnight
   const timeToMinutes = (timeStr: string) => {
@@ -28,7 +46,7 @@ function PlannerPage() {
       <header className="flex shrink-0 items-center justify-between bg-background-light dark:bg-background-dark px-4 pt-4 pb-2">
         <div className="flex flex-col">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Planner</h1>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">November 2025</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</p>
         </div>
         <button className="flex size-10 items-center justify-center rounded-full text-gray-600 dark:text-gray-300">
           <span className="material-symbols-outlined text-2xl">search</span>
@@ -38,35 +56,26 @@ function PlannerPage() {
       {/* Horizontal Calendar Scroll */}
       <div className="shrink-0 overflow-x-auto">
         <div className="flex border-b border-gray-200 dark:border-gray-800 px-4 gap-3">
-          {/* Calendar days - simplified for now */}
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Mon</p>
-            <div className="flex size-8 items-center justify-center rounded-full"><p className="text-sm font-semibold text-gray-700 dark:text-gray-300">10</p></div>
-          </a>
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Tue</p>
-            <div className="flex size-8 items-center justify-center rounded-full"><p className="text-sm font-semibold text-gray-700 dark:text-gray-300">11</p></div>
-          </a>
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg bg-primary/10 px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-bold uppercase text-primary">Wed</p>
-            <div className="flex size-8 items-center justify-center rounded-full bg-primary text-white"><p className="text-sm font-bold">12</p></div>
-          </a>
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Thu</p>
-            <div className="flex size-8 items-center justify-center rounded-full"><p className="text-sm font-semibold text-gray-700 dark:text-gray-300">13</p></div>
-          </a>
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Fri</p>
-            <div className="flex size-8 items-center justify-center rounded-full"><p className="text-sm font-semibold text-gray-700 dark:text-gray-300">14</p></div>
-          </a>
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Sat</p>
-            <div className="flex size-8 items-center justify-center rounded-full"><p className="text-sm font-semibold text-gray-700 dark:text-gray-300">15</p></div>
-          </a>
-          <a className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3" href="#">
-            <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Sun</p>
-            <div className="flex size-8 items-center justify-center rounded-full"><p className="text-sm font-semibold text-gray-700 dark:text-gray-300">16</p></div>
-          </a>
+          {weekDays.map((day) => {
+            const isSelected = formatDate(day) === formatDate(currentDate);
+            return (
+              <a
+                key={day.toISOString()}
+                className={`flex shrink-0 flex-col items-center justify-center gap-2 rounded-t-lg px-2 pb-2 pt-3 ${isSelected ? 'bg-primary/10' : ''}`}
+                href="#"
+                onClick={() => setCurrentDate(day)}
+              >
+                <p className={`text-xs font-medium uppercase ${isSelected ? 'text-primary font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
+                  {day.toLocaleString('default', { weekday: 'short' })}
+                </p>
+                <div className={`flex size-8 items-center justify-center rounded-full ${isSelected ? 'bg-primary text-white' : ''}`}>
+                  <p className={`text-sm font-semibold ${isSelected ? 'font-bold' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {day.getDate()}
+                  </p>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
 
@@ -93,7 +102,9 @@ function PlannerPage() {
 
             {/* Event Cards Container */}
             <div className="relative h-full">
-              {tasks.map(task => {
+              {tasks
+              .filter(task => task.startDate === formatDate(currentDate))
+              .map(task => {
                 const startMinutes = timeToMinutes(task.time);
                 // Assuming a default duration of 1 hour if no end time is provided
                 const endMinutes = task.endDate ? timeToMinutes(task.endDate) : startMinutes + 60;
@@ -129,7 +140,7 @@ function PlannerPage() {
         <div className="flex">
           <Link to="/" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
             <span className="material-symbols-outlined">sunny</span>
-            <p className="text-xs font-medium">Today</p>
+            <p className="text-xs font-medium">Dashboard</p>
           </Link>
           <Link to="/planner" className="flex flex-1 flex-col items-center justify-end gap-1 text-primary">
             <span className="material-symbols-outlined font-bold">calendar_month</span>

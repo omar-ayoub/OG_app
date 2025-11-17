@@ -9,12 +9,51 @@ function Dashboard() {
   const { goals } = useGoals(); // Consume goals from context
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<'Dashboard' | 'Tomorrow' | 'Week'>('Dashboard');
 
   if (!tasks || !goals) { // Check for goals as well
     return <div>Loading...</div>;
   }
 
-  const incompleteTasks = tasks.filter(task => !task.isCompleted).length;
+  const isTomorrow = (taskDate?: string) => {
+    if (!taskDate) return false;
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const task = new Date(taskDate);
+
+    return task.getDate() === tomorrow.getDate() &&
+           task.getMonth() === tomorrow.getMonth() &&
+           task.getFullYear() === tomorrow.getFullYear();
+  };
+
+  const getFilteredTasks = () => {
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+
+    switch (selectedFilter) {
+      case 'Dashboard':
+        return tasks.filter(task => {
+          if (!task.startDate) return true; // Tasks without a start date are considered for 'Dashboard'
+          return task.startDate === todayString;
+        });
+      case 'Tomorrow':
+        return tasks.filter(task => isTomorrow(task.startDate));
+      case 'Week':
+        // Implement week filtering logic here if needed, for now return all tasks
+        return tasks;
+      default:
+        return tasks;
+    }
+  };
+
+  const filteredTasks = getFilteredTasks();
+  const incompleteTasks = tasks.filter(task => {
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    return !task.isCompleted && (!task.startDate || task.startDate === todayString);
+  }).length;
 
   return (
     <div className="relative flex h-screen w-full flex-col group/design-root overflow-hidden text-text-light-primary dark:text-text-dark-primary font-display bg-background-light dark:bg-background-dark">
@@ -40,17 +79,19 @@ function Dashboard() {
           const progress = goalTasks.length > 0 ? (completedGoalTasks / goalTasks.length) * 100 : 0;
 
           return (
-            <div key={goal.id} className="flex-shrink-0 w-64 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md">
-              <h3 className="text-lg font-semibold text-text-light-primary dark:text-text-dark-primary">{goal.title}</h3>
-              {goal.description && <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-1">{goal.description}</p>}
-              {goal.targetDate && <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-2">Target: {goal.targetDate}</p>}
-              <div className="mt-3">
-                <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }}></div>
+            <Link to={`/goal-details/${goal.id}`} key={goal.id} className="flex-shrink-0 w-64 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md">
+              <div>
+                <h3 className="text-lg font-semibold text-text-light-primary dark:text-text-dark-primary">{goal.title}</h3>
+                {goal.description && <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-1">{goal.description}</p>}
+                {goal.targetDate && <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-2">Target: {goal.targetDate}</p>}
+                <div className="mt-3">
+                  <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }}></div>
+                  </div>
+                  <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-1">{Math.round(progress)}% Complete</p>
                 </div>
-                <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-1">{Math.round(progress)}% Complete</p>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -65,12 +106,27 @@ function Dashboard() {
       <main className="flex-1 overflow-y-auto px-4 pt-5">
         <h2 className="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3">Tasks</h2>
         <div className="flex w-full items-center gap-2 rounded-lg bg-background-light dark:bg-card-dark p-1 mb-4">
-          <button className="flex-1 rounded-md bg-primary py-2 text-sm font-semibold text-white">Today</button>
-          <button className="flex-1 rounded-md py-2 text-sm font-semibold text-text-light-secondary dark:text-text-dark-secondary">Tomorrow</button>
-          <button className="flex-1 rounded-md py-2 text-sm font-semibold text-text-light-secondary dark:text-text-dark-secondary">Week</button>
+          <button
+            onClick={() => setSelectedFilter('Dashboard')}
+            className={`flex-1 rounded-md py-2 text-sm font-semibold ${selectedFilter === 'Dashboard' ? 'bg-primary text-white' : 'text-text-light-secondary dark:text-text-dark-secondary'}`}
+          >
+            Dashboard
+          </button>
+          <button
+            onClick={() => setSelectedFilter('Tomorrow')}
+            className={`flex-1 rounded-md py-2 text-sm font-semibold ${selectedFilter === 'Tomorrow' ? 'bg-primary text-white' : 'text-text-light-secondary dark:text-text-dark-secondary'}`}
+          >
+            Tomorrow
+          </button>
+          <button
+            onClick={() => setSelectedFilter('Week')}
+            className={`flex-1 rounded-md py-2 text-sm font-semibold ${selectedFilter === 'Week' ? 'bg-primary text-white' : 'text-text-light-secondary dark:text-text-dark-secondary'}`}
+          >
+            Week
+          </button>
         </div>
         <div className="flex flex-col gap-3">
-          {tasks.map((task) => (
+          {filteredTasks.map((task) => (
             <div key={task.id} className="flex items-center gap-4 rounded-xl bg-card-light dark:bg-card-dark p-4">
               <button
                 onClick={() => toggleTaskCompletion(task.id)}
@@ -128,7 +184,7 @@ function Dashboard() {
         <div className="flex">
           <Link to="/" className="flex flex-1 flex-col items-center justify-end gap-1 text-primary">
             <span className="material-symbols-outlined font-bold">sunny</span>
-            <p className="text-xs font-bold">Today</p>
+            <p className="text-xs font-bold">Dashboard</p>
           </Link>
           <Link to="/planner" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
             <span className="material-symbols-outlined">calendar_month</span>
@@ -138,10 +194,10 @@ function Dashboard() {
             <span className="material-symbols-outlined">repeat</span>
             <p className="text-xs font-medium">Habits</p>
           </a>
-          <a className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400" href="#">
+          <Link to="/goals" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
             <span className="material-symbols-outlined">track_changes</span>
             <p className="text-xs font-medium">Goals</p>
-          </a>
+          </Link>
         </div>
       </nav>
     </div>
