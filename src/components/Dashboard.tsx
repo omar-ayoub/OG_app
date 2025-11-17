@@ -194,10 +194,10 @@ function Dashboard() {
             <span className="material-symbols-outlined">repeat</span>
             <p className="text-xs font-medium">Habits</p>
           </a>
-          <a className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400" href="#">
+          <Link to="/goals" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
             <span className="material-symbols-outlined">track_changes</span>
             <p className="text-xs font-medium">Goals</p>
-          </a>
+          </Link>
         </div>
       </nav>
     </div>

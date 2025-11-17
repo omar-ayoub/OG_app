@@ -5,6 +5,7 @@ import EditTaskPage from './components/EditTaskPage';
 import PlannerPage from './components/PlannerPage';
 import CreateGoalPage from './components/CreateGoalPage';
 import GoalDetailsPage from './components/GoalDetailsPage'; // Import GoalDetailsPage
+import GoalOverviewPage from './components/GoalOverviewPage';
 import { TaskProvider } from './contexts/TaskContext';
 import { GoalProvider } from './contexts/GoalContext'; // Import GoalProvider
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/planner" element={<PlannerPage />} />
           <Route path="/create-goal" element={<CreateGoalPage />} />
           <Route path="/goal-details/:id" element={<GoalDetailsPage />} /> {/* New route for GoalDetailsPage */}
+          <Route path="/goals" element={<GoalOverviewPage />} />
         </Routes>
       </TaskProvider>
     </GoalProvider>
