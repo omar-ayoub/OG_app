@@ -9,7 +9,7 @@ function GoalDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { getGoal, updateGoal, deleteGoal } = useGoals();
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, toggleSubTaskCompletion } = useTasks();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<Goal>>({
@@ -189,30 +189,38 @@ function GoalDetailsPage() {
                   <>
                     <h3 className="px-3 pt-2 pb-2 text-base font-bold text-text-light-primary dark:text-text-dark-primary">In Progress</h3>
                     {incompleteTasks.map((task) => (
-                      <div key={task.id} className="flex items-center gap-x-4 py-3.5 px-3">
-                        {isEditing ? (
+                      <div key={task.id} className="flex flex-col gap-y-2 py-3.5 px-3">
+                        <div className="flex items-center gap-x-4">
                           <input
                             className="h-5 w-5 rounded-md border-2 border-border-light dark:border-border-dark bg-transparent text-primary checked:border-primary checked:bg-primary focus:ring-0 focus:ring-offset-0 dark:checked:border-primary"
                             type="checkbox"
                             checked={task.isCompleted}
                             onChange={() => handleTaskCompletionToggle(task.id)}
                           />
-                        ) : (
-                          <input
-                            className="h-5 w-5 rounded-md border-2 border-border-light dark:border-border-dark bg-transparent text-primary checked:border-primary checked:bg-primary focus:ring-0 focus:ring-offset-0 dark:checked:border-primary"
-                            type="checkbox"
-                            checked={task.isCompleted}
-                            onChange={() => handleTaskCompletionToggle(task.id)}
-                          />
-                        )}
-                        <p className="flex-1 text-base font-normal leading-normal text-text-light-primary dark:text-text-dark-primary">{task.text}</p>
-                        {isEditing && (
-                          <button
-                            onClick={() => navigate(`/edit-task/${task.id}`, { state: { from: `/goal-details/${goalId}`, goalData: formData } })}
-                            className="text-primary text-sm"
-                          >
-                            Edit
-                          </button>
+                          <p className="flex-1 text-base font-normal leading-normal text-text-light-primary dark:text-text-dark-primary">{task.text}</p>
+                          {isEditing && (
+                            <button
+                              onClick={() => navigate(`/edit-task/${task.id}`, { state: { from: `/goal-details/${goalId}`, goalData: formData } })}
+                              className="text-primary text-sm"
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                        {task.subTasks && task.subTasks.length > 0 && (
+                          <div className="flex flex-col gap-2 pl-10">
+                            {task.subTasks.map((subTask) => (
+                              <div key={subTask.id} className="flex items-center gap-4">
+                                <input
+                                  type="checkbox"
+                                  checked={subTask.completed}
+                                  onChange={() => toggleSubTaskCompletion(task.id, subTask.id)}
+                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                />
+                                <p className={`text-sm ${subTask.completed ? 'line-through' : ''}`}>{subTask.text}</p>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
                     ))}
@@ -233,30 +241,38 @@ function GoalDetailsPage() {
                   <>
                     <h3 className="px-3 pt-6 pb-2 text-base font-bold text-text-light-primary dark:text-text-dark-primary">Completed</h3>
                     {completedTasks.map((task) => (
-                      <div key={task.id} className="flex items-center gap-x-4 py-3.5 px-3 opacity-60">
-                        {isEditing ? (
+                      <div key={task.id} className="flex flex-col gap-y-2 py-3.5 px-3 opacity-60">
+                        <div className="flex items-center gap-x-4">
                           <input
                             className="h-5 w-5 rounded-md border-2 border-border-light dark:border-border-dark bg-transparent text-primary checked:border-primary checked:bg-primary focus:ring-0 focus:ring-offset-0 dark:checked:border-primary"
                             type="checkbox"
                             checked={task.isCompleted}
                             onChange={() => handleTaskCompletionToggle(task.id)}
                           />
-                        ) : (
-                          <input
-                            className="h-5 w-5 rounded-md border-2 border-border-light dark:border-border-dark bg-transparent text-primary checked:border-primary checked:bg-primary focus:ring-0 focus:ring-offset-0 dark:checked:border-primary"
-                            type="checkbox"
-                            checked={task.isCompleted}
-                            onChange={() => handleTaskCompletionToggle(task.id)}
-                          />
-                        )}
-                        <p className="flex-1 text-base font-normal leading-normal text-text-light-primary dark:text-text-dark-primary line-through">{task.text}</p>
-                        {isEditing && (
-                          <button
-                            onClick={() => navigate(`/edit-task/${task.id}`, { state: { from: `/goal-details/${goalId}`, goalData: formData } })}
-                            className="text-primary text-sm"
-                          >
-                            Edit
-                          </button>
+                          <p className="flex-1 text-base font-normal leading-normal text-text-light-primary dark:text-text-dark-primary line-through">{task.text}</p>
+                          {isEditing && (
+                            <button
+                              onClick={() => navigate(`/edit-task/${task.id}`, { state: { from: `/goal-details/${goalId}`, goalData: formData } })}
+                              className="text-primary text-sm"
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                        {task.subTasks && task.subTasks.length > 0 && (
+                          <div className="flex flex-col gap-2 pl-10">
+                            {task.subTasks.map((subTask) => (
+                              <div key={subTask.id} className="flex items-center gap-4">
+                                <input
+                                  type="checkbox"
+                                  checked={subTask.completed}
+                                  onChange={() => toggleSubTaskCompletion(task.id, subTask.id)}
+                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                />
+                                <p className={`text-sm ${subTask.completed ? 'line-through' : ''}`}>{subTask.text}</p>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
                     ))}

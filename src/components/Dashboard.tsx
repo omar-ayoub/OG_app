@@ -5,7 +5,7 @@ import { useTasks } from '../contexts/useTasks';
 import { useGoals } from '../contexts/useGoals'; // Import useGoals
 
 function Dashboard() {
-  const { tasks, toggleTaskCompletion, deleteTask } = useTasks();
+  const { tasks, toggleTaskCompletion, deleteTask, toggleSubTaskCompletion } = useTasks();
   const { goals } = useGoals(); // Consume goals from context
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
@@ -127,29 +127,48 @@ function Dashboard() {
         </div>
         <div className="flex flex-col gap-3">
           {filteredTasks.map((task) => (
-            <div key={task.id} className="flex items-center gap-4 rounded-xl bg-card-light dark:bg-card-dark p-4">
-              <button
-                onClick={() => toggleTaskCompletion(task.id)}
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${
-                  task.isCompleted ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
-                }`}
-              >
-                {task.isCompleted && <span className="material-symbols-outlined text-white !text-lg">check</span>}
-              </button>
-              <div className="flex-1">
-                <p className={`text-base font-medium ${task.isCompleted ? 'line-through' : ''}`}>{task.text}</p>
-                <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">{task.time}</p>
+            <div key={task.id} className="flex flex-col gap-4 rounded-xl bg-card-light dark:bg-card-dark p-4">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => toggleTaskCompletion(task.id)}
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${
+                    task.isCompleted ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
+                  }`}
+                >
+                  {task.isCompleted && <span className="material-symbols-outlined text-white !text-lg">check</span>}
+                </button>
+                <div className="flex-1">
+                  <p className={`text-base font-medium ${task.isCompleted ? 'line-through' : ''}`}>{task.text}</p>
+                  <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">{task.time}</p>
+                </div>
+                <div
+                  className="rounded-full px-3 py-1 text-xs font-medium"
+                  style={{ backgroundColor: `${task.tagColor}20`, color: task.tagColor }}
+                >
+                  {task.tag}
+                </div>
+                <div className="flex gap-2">
+                  <Link to={`/edit-task/${task.id}`} className="text-primary text-sm">Edit</Link>
+                  <button onClick={() => deleteTask(task.id)} className="text-red-500 text-sm">Delete</button>
+                </div>
               </div>
-              <div
-                className="rounded-full px-3 py-1 text-xs font-medium"
-                style={{ backgroundColor: `${task.tagColor}20`, color: task.tagColor }}
-              >
-                {task.tag}
-              </div>
-              <div className="flex gap-2">
-                <Link to={`/edit-task/${task.id}`} className="text-primary text-sm">Edit</Link>
-                <button onClick={() => deleteTask(task.id)} className="text-red-500 text-sm">Delete</button>
-              </div>
+              {task.subTasks && task.subTasks.length > 0 && (
+                <div className="flex flex-col gap-2 pl-10">
+                  {task.subTasks.map((subTask) => (
+                    <div key={subTask.id} className="flex items-center gap-4">
+                      <button
+                        onClick={() => toggleSubTaskCompletion(task.id, subTask.id)}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 ${
+                          subTask.completed ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
+                        }`}
+                      >
+                        {subTask.completed && <span className="material-symbols-outlined text-white !text-base">check</span>}
+                      </button>
+                      <p className={`text-sm ${subTask.completed ? 'line-through' : ''}`}>{subTask.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

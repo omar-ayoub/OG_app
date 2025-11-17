@@ -1,6 +1,6 @@
 // src/contexts/TaskContext.tsx
 import { useState, type ReactNode, useCallback } from 'react';
-import type { Task, Category } from '../types';
+import type { Task, Category, SubTask } from '../types';
 import { TaskContext } from './TaskContextDefinition';
 
 // --- MOCK DATA ---
@@ -12,7 +12,7 @@ const MOCK_CATEGORIES: Category[] = [
 ];
 
 const MOCK_TASKS: Task[] = [
-  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
+  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, subTasks: [{id: 1, text: "sub task 1", completed: false}, {id: 2, text: "sub task 2", completed: true}] },
   { id: 2, text: 'Review design system', time: '2:00 PM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
   { id: 3, text: 'Setup development environment', time: '9:00 AM', startDate: '2025-11-18', tag: 'Learning', tagColor: '#8b5cf6', isCompleted: false },
   { id: 4, text: 'Deploy to production', time: 'Anytime', startDate: '2025-11-19', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
@@ -23,6 +23,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [nextId, setNextId] = useState(5);
+  const [nextSubTaskId, setNextSubTaskId] = useState(3);
 
   const toggleTaskCompletion = (id: number) => {
     setTasks((prevTasks) =>
@@ -43,6 +44,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       tagColor: newTaskData.tagColor || categories[0]?.color || '#3b82f6',
       isCompleted: false,
       description: newTaskData.description,
+      subTasks: newTaskData.subTasks || [],
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setNextId(nextId + 1);
@@ -75,6 +77,42 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const addSubTask = (taskId: number, subTaskText: string) => {
+    const newSubTask: SubTask = {
+      id: nextSubTaskId,
+      text: subTaskText,
+      completed: false,
+    };
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              subTasks: [...(task.subTasks || []), newSubTask],
+            }
+          : task
+      )
+    );
+    setNextSubTaskId(nextSubTaskId + 1);
+  };
+
+  const toggleSubTaskCompletion = (taskId: number, subTaskId: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              subTasks: (task.subTasks || []).map((subTask) =>
+                subTask.id === subTaskId
+                  ? { ...subTask, completed: !subTask.completed }
+                  : subTask
+              ),
+            }
+          : task
+      )
+    );
+  };
+
   const value = {
     tasks,
     categories,
@@ -85,6 +123,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     getTask,
     addCategory,
     deleteCategory,
+    addSubTask,
+    toggleSubTaskCompletion,
   };
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

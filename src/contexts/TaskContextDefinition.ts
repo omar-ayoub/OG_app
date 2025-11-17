@@ -13,6 +13,8 @@ export type TaskContextType = {
   getTask: (taskId: number) => Task | undefined;
   addCategory: (newCategory: Category) => void;
   deleteCategory: (categoryName: string) => void;
+  addSubTask: (taskId: number, subTaskText: string) => void;
+  toggleSubTaskCompletion: (taskId: number, subTaskId: number) => void;
 };
 
 // --- CREATE CONTEXT ---

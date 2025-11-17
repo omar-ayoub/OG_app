@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTasks } from '../contexts/useTasks';
+import type { SubTask } from '../types';
 
 function CreateTaskPage() {
   const navigate = useNavigate();
@@ -13,7 +14,15 @@ function CreateTaskPage() {
   const [time, setTime] = useState('');
   const [tag, setTag] = useState(categories[0]?.name || '');
   const [description, setDescription] = useState('');
+  const [subTasks, setSubTasks] = useState<SubTask[]>([]);
+  const [newSubTaskText, setNewSubTaskText] = useState('');
 
+  const handleAddSubTask = () => {
+    if (newSubTaskText.trim()) {
+      setSubTasks([...subTasks, { id: Date.now(), text: newSubTaskText, completed: false }]);
+      setNewSubTaskText('');
+    }
+  };
 
   const handleCreate = () => {
     if (!text.trim()) {
@@ -33,6 +42,7 @@ function CreateTaskPage() {
       tag: selectedCategory.name,
       tagColor: selectedCategory.color,
       description,
+      subTasks,
     });
 
     const from = location.state?.from;
@@ -109,6 +119,26 @@ function CreateTaskPage() {
                     ))}
                   </select>
                 </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+              <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Sub-tasks</p>
+              <div className="flex flex-col gap-2">
+                {subTasks.map(subTask => (
+                  <div key={subTask.id} className="flex items-center justify-between">
+                    <p className="text-sm">{subTask.text}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSubTaskText}
+                  onChange={(e) => setNewSubTaskText(e.target.value)}
+                  placeholder="Add a new sub-task"
+                  className="form-input flex-1 rounded-lg border-none bg-input-light p-2 text-sm text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-2 focus:ring-primary/50 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                />
+                <button onClick={handleAddSubTask} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white">Add</button>
               </div>
             </div>
             <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">

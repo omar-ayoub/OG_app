@@ -6,7 +6,7 @@ import { useTasks } from '../contexts/useTasks';
 function EditTaskPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addTask, editTask, getTask, categories } = useTasks();
+  const { addTask, editTask, getTask, categories, addSubTask } = useTasks();
 
   const [formData, setFormData] = useState({
     text: '',
@@ -15,24 +15,22 @@ function EditTaskPage() {
     tag: categories[0]?.name || '',
     description: '',
   });
+  const [newSubTaskText, setNewSubTaskText] = useState('');
 
   const isEditMode = id !== undefined;
+  const task = isEditMode ? getTask(parseInt(id, 10)) : undefined;
 
   useEffect(() => {
-    if (isEditMode) {
-      const taskId = parseInt(id, 10);
-      const task = getTask(taskId);
-      if (task) {
-        setTimeout(() => {
-          setFormData({
-            text: task.text,
-            startDate: task.startDate || '',
-            time: task.time || '',
-            tag: task.tag,
-            description: task.description || '',
-          });
-        }, 0);
-      }
+    if (isEditMode && task) {
+      setTimeout(() => {
+        setFormData({
+          text: task.text,
+          startDate: task.startDate || '',
+          time: task.time || '',
+          tag: task.tag,
+          description: task.description || '',
+        });
+      }, 0);
     } else {
       // Reset form data when not in edit mode (e.g., creating a new task)
       setTimeout(() => {
@@ -45,7 +43,7 @@ function EditTaskPage() {
         });
       }, 0);
     }
-  }, [id, isEditMode, getTask, categories]);
+  }, [id, isEditMode, getTask, categories, task]);
 
   const handleSave = () => {
     if (!formData.text.trim()) {
@@ -81,6 +79,14 @@ function EditTaskPage() {
       navigate(from, { state: { goalData } });
     } else {
       navigate('/');
+    }
+  };
+
+  const handleAddSubTask = () => {
+    if (newSubTaskText.trim() && isEditMode) {
+      const taskId = parseInt(id, 10);
+      addSubTask(taskId, newSubTaskText);
+      setNewSubTaskText('');
     }
   };
 
@@ -147,6 +153,28 @@ function EditTaskPage() {
                 </div>
               </div>
             </div>
+            {isEditMode && (
+              <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+                <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Sub-tasks</p>
+                <div className="flex flex-col gap-2">
+                  {task?.subTasks?.map(subTask => (
+                    <div key={subTask.id} className="flex items-center justify-between">
+                      <p className={`text-sm ${subTask.completed ? 'line-through' : ''}`}>{subTask.text}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSubTaskText}
+                    onChange={(e) => setNewSubTaskText(e.target.value)}
+                    placeholder="Add a new sub-task"
+                    className="form-input flex-1 rounded-lg border-none bg-input-light p-2 text-sm text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-2 focus:ring-primary/50 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                  />
+                  <button onClick={handleAddSubTask} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white">Add</button>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
               <label className="flex flex-1 flex-col min-w-40">
                 <p className="text-base font-medium leading-normal pb-2 text-text-light-primary dark:text-text-dark-primary">Description</p>

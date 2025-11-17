@@ -1,5 +1,11 @@
 // src/types/index.ts
 
+export interface SubTask {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
 export interface Task {
   id: number;
   text: string;
@@ -10,6 +16,8 @@ export interface Task {
   tagColor: string;
   isCompleted: boolean;
   description?: string;
+  subTasks?: SubTask[];
+  goalId?: string;
 }
 
 export interface Category {
