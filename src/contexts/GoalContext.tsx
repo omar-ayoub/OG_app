@@ -27,8 +27,12 @@ export const GoalProvider = ({ children }: { children: ReactNode }) => {
     setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== id));
   };
 
+  const getGoal = (id: string) => {
+    return goals.find((goal) => goal.id === id);
+  };
+
   return (
-    <GoalContext.Provider value={{ goals, addGoal, updateGoal, deleteGoal }}>
+    <GoalContext.Provider value={{ goals, addGoal, updateGoal, deleteGoal, getGoal }}>
       {children}
     </GoalContext.Provider>
   );

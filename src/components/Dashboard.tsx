@@ -79,17 +79,19 @@ function Dashboard() {
           const progress = goalTasks.length > 0 ? (completedGoalTasks / goalTasks.length) * 100 : 0;
 
           return (
-            <div key={goal.id} className="flex-shrink-0 w-64 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md">
-              <h3 className="text-lg font-semibold text-text-light-primary dark:text-text-dark-primary">{goal.title}</h3>
-              {goal.description && <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-1">{goal.description}</p>}
-              {goal.targetDate && <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-2">Target: {goal.targetDate}</p>}
-              <div className="mt-3">
-                <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }}></div>
+            <Link to={`/goal-details/${goal.id}`} key={goal.id} className="flex-shrink-0 w-64 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md">
+              <div>
+                <h3 className="text-lg font-semibold text-text-light-primary dark:text-text-dark-primary">{goal.title}</h3>
+                {goal.description && <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-1">{goal.description}</p>}
+                {goal.targetDate && <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-2">Target: {goal.targetDate}</p>}
+                <div className="mt-3">
+                  <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }}></div>
+                  </div>
+                  <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-1">{Math.round(progress)}% Complete</p>
                 </div>
-                <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-1">{Math.round(progress)}% Complete</p>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
