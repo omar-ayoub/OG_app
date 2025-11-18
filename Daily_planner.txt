@@ -48,7 +48,16 @@
 <header class="flex shrink-0 items-center justify-between bg-background-light dark:bg-background-dark px-4 pt-4 pb-2">
 <div class="flex flex-col">
 <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Planner</h1>
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">October 2024</p>
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+<span id="current-month-year"></span>
+</p>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const date = new Date();
+    const options = { year: 'numeric', month: 'long' };
+    document.getElementById('current-month-year').textContent = date.toLocaleDateString('en-US', options);
+  });
+</script>
 </div>
 <button class="flex size-10 items-center justify-center rounded-full text-gray-600 dark:text-gray-300">
 <span class="material-symbols-outlined text-2xl">search</span>
