@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTasks } from '../contexts/useTasks';
-import { Link } from 'react-router-dom';
+import BottomNavBar from './BottomNavBar';
 
 function PlannerPage() {
   const { tasks } = useTasks();
@@ -146,26 +146,7 @@ function PlannerPage() {
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 shrink-0 border-t border-gray-200 dark:border-gray-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm px-4 pb-3 pt-2">
-        <div className="flex">
-          <Link to="/" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
-            <span className="material-symbols-outlined">sunny</span>
-            <p className="text-xs font-medium">Dashboard</p>
-          </Link>
-          <Link to="/planner" className="flex flex-1 flex-col items-center justify-end gap-1 text-primary">
-            <span className="material-symbols-outlined font-bold">calendar_month</span>
-            <p className="text-xs font-bold">Planner</p>
-          </Link>
-          <a className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400" href="#">
-            <span className="material-symbols-outlined">repeat</span>
-            <p className="text-xs font-medium">Habits</p>
-          </a>
-          <a className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400" href="#">
-            <span className="material-symbols-outlined">track_changes</span>
-            <p className="text-xs font-medium">Goals</p>
-          </a>
-        </div>
-      </nav>
+      <BottomNavBar />
     </div>
   );
 }

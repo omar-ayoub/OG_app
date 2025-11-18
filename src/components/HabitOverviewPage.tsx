@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useHabits } from '../contexts/useHabits';
+import BottomNavBar from './BottomNavBar';
 
 function HabitOverviewPage() {
   const { habits, toggleHabitCompletion } = useHabits();
@@ -62,11 +63,12 @@ function HabitOverviewPage() {
         </div>
       </main>
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6">
+      <div className="fixed bottom-24 right-6">
         <button className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/40 transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95">
           <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>add</span>
         </button>
       </div>
+      <BottomNavBar />
     </div>
   );
 }
