@@ -12,10 +12,10 @@ const MOCK_CATEGORIES: Category[] = [
 ];
 
 const MOCK_TASKS: Task[] = [
-  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, subTasks: [{id: 1, text: "sub task 1", completed: false}, {id: 2, text: "sub task 2", completed: true}] },
-  { id: 2, text: 'Review design system', time: '2:00 PM', startDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
-  { id: 3, text: 'Setup development environment', time: '9:00 AM', startDate: '2025-11-18', tag: 'Learning', tagColor: '#8b5cf6', isCompleted: false },
-  { id: 4, text: 'Deploy to production', time: 'Anytime', startDate: '2025-11-19', tag: 'Work', tagColor: '#3b82f6', isCompleted: false },
+  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', startDate: '2025-11-17', endDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, subTasks: [{id: 1, text: "sub task 1", completed: false}, {id: 2, text: "sub task 2", completed: true}], isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
+  { id: 2, text: 'Review design system', time: '2:00 PM', startDate: '2025-11-17', endDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
+  { id: 3, text: 'Setup development environment', time: '9:00 AM', startDate: '2025-11-18', endDate: '2025-11-18', tag: 'Learning', tagColor: '#8b5cf6', isCompleted: false, isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
+  { id: 4, text: 'Deploy to production', time: 'Anytime', startDate: '2025-11-19', endDate: '2025-11-19', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
 ];
 
 // --- PROVIDER COMPONENT ---
@@ -58,13 +58,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       isCompleted: false,
       description: newTaskData.description,
       subTasks: newTaskData.subTasks || [],
+      isRepetitive: newTaskData.isRepetitive || false,
+      repeatFrequency: newTaskData.repeatFrequency,
+      habitId: newTaskData.habitId,
     };
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setNextId(nextId + 1);
     return newTask.id;
   };
 
-  const editTask = (taskId: number, updatedTaskData: Partial<Task>) => {
+  const updateTask = (taskId: number, updatedTaskData: Partial<Task>) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === taskId ? { ...task, ...updatedTaskData } : task
@@ -169,7 +172,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     categories,
     toggleTaskCompletion,
     addTask,
-    editTask,
+    updateTask,
     deleteTask,
     getTask,
     addCategory,

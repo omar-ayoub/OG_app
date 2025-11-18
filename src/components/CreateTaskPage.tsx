@@ -11,11 +11,15 @@ function CreateTaskPage() {
 
   const [text, setText] = useState('');
   const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState(''); // New state for endDate
   const [time, setTime] = useState('');
   const [tag, setTag] = useState(categories[0]?.name || '');
   const [description, setDescription] = useState('');
   const [subTasks, setSubTasks] = useState<SubTask[]>([]);
   const [newSubTaskText, setNewSubTaskText] = useState('');
+  const [isRepetitive, setIsRepetitive] = useState(false);
+  const [repeatFrequency, setRepeatFrequency] = useState<'daily' | 'weekly' | 'monthly' | undefined>(undefined);
+  const [habitId] = useState<number | undefined>(undefined);
 
   const handleAddSubTask = () => {
     if (newSubTaskText.trim()) {
@@ -39,10 +43,14 @@ function CreateTaskPage() {
       text,
       time: time || 'Anytime',
       startDate,
+      endDate,
       tag: selectedCategory.name,
       tagColor: selectedCategory.color,
       description,
       subTasks,
+      isRepetitive,
+      repeatFrequency: isRepetitive ? repeatFrequency : undefined,
+      habitId: habitId || undefined,
     });
 
     const from = location.state?.from;
@@ -103,7 +111,47 @@ function CreateTaskPage() {
                     <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">schedule</span>
                   </div>
                 </label>
+                <label className="flex flex-1 flex-col min-w-40">
+                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">End Date</p>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      className="form-input flex h-14 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 pr-12 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                    />
+                    <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">event</span>
+                  </div>
+                </label>
               </div>
+            </div>
+            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={isRepetitive}
+                  onChange={(e) => setIsRepetitive(e.target.checked)}
+                  className="form-checkbox h-5 w-5 rounded text-primary focus:ring-primary/50"
+                />
+                <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Repetitive Task</p>
+              </label>
+              {isRepetitive && (
+                <div className="flex flex-col gap-2">
+                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Repeat Frequency</p>
+                  <div className="relative flex h-14 w-full items-center rounded-lg border-none bg-input-light p-4 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary">
+                    <select
+                      value={repeatFrequency || ''}
+                      onChange={(e) => setRepeatFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                      className="w-full bg-transparent appearance-none"
+                    >
+                      <option value="">Select Frequency</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
               <div className="flex flex-col">

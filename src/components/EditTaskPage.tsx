@@ -2,20 +2,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTasks } from '../contexts/useTasks';
+import { useHabits } from '../contexts/useHabits';
 import type { SubTask } from '../types';
 
 function EditTaskPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addTask, editTask, getTask, categories, addSubTask, editSubTask, deleteSubTask } = useTasks();
+  const { addTask, updateTask, getTask, categories, addSubTask, editSubTask, deleteSubTask } = useTasks();
+  const { habits } = useHabits();
 
   const [formData, setFormData] = useState({
     text: '',
     startDate: '',
+    endDate: '',
     time: '',
     tag: categories[0]?.name || '',
     description: '',
   });
+  const [isRepetitive, setIsRepetitive] = useState(false);
+  const [repeatFrequency, setRepeatFrequency] = useState<'daily' | 'weekly' | 'monthly' | undefined>(undefined);
+  const [habitId, setHabitId] = useState<number | undefined>(undefined);
   const [newSubTaskText, setNewSubTaskText] = useState('');
   const [subTasks, setSubTasks] = useState<SubTask[]>([]);
   const [editingSubTaskId, setEditingSubTaskId] = useState<number | null>(null);
@@ -30,10 +36,14 @@ function EditTaskPage() {
         setFormData({
           text: task.text,
           startDate: task.startDate || '',
+          endDate: task.endDate || '',
           time: task.time || '',
           tag: task.tag,
           description: task.description || '',
         });
+        setIsRepetitive(task.isRepetitive || false);
+        setRepeatFrequency(task.repeatFrequency || undefined);
+        setHabitId(task.habitId || undefined);
         setSubTasks(task.subTasks || []);
       }, 0);
     } else {
@@ -42,6 +52,7 @@ function EditTaskPage() {
         setFormData({
           text: '',
           startDate: '',
+          endDate: '',
           time: '',
           tag: categories[0]?.name || '',
           description: '',
@@ -66,27 +77,24 @@ function EditTaskPage() {
       text: formData.text,
       time: formData.time || 'Anytime',
       startDate: formData.startDate,
+      endDate: formData.endDate,
       tag: selectedCategory.name,
       tagColor: selectedCategory.color,
       description: formData.description,
       subTasks: subTasks,
+      isRepetitive,
+      repeatFrequency: isRepetitive ? repeatFrequency : undefined,
+      habitId: habitId || undefined,
     };
 
     if (isEditMode) {
       const taskId = parseInt(id, 10);
-      editTask(taskId, taskData);
+      updateTask(taskId, taskData);
     } else {
       addTask(taskData);
     }
 
-    const from = location.state?.from;
-    const goalData = location.state?.goalData;
-
-    if (from === `/goal-details/${goalData?.id}`) {
-      navigate(from, { state: { goalData } });
-    } else {
-      navigate('/');
-    }
+    navigate('/');
   };
 
   const handleAddSubTask = () => {
@@ -163,6 +171,61 @@ function EditTaskPage() {
                     <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">schedule</span>
                   </div>
                 </label>
+                <label className="flex flex-1 flex-col min-w-40">
+                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">End Date</p>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      className="form-input flex h-14 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 pr-12 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                      value={formData.endDate}
+                      onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    />
+                    <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">event</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={isRepetitive}
+                  onChange={(e) => setIsRepetitive(e.target.checked)}
+                  className="form-checkbox h-5 w-5 rounded text-primary focus:ring-primary/50"
+                />
+                <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Repetitive Task</p>
+              </label>
+              {isRepetitive && (
+                <div className="flex flex-col gap-2">
+                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Repeat Frequency</p>
+                  <div className="relative flex h-14 w-full items-center rounded-lg border-none bg-input-light p-4 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary">
+                    <select
+                      value={repeatFrequency || ''}
+                      onChange={(e) => setRepeatFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                      className="w-full bg-transparent appearance-none"
+                    >
+                      <option value="">Select Frequency</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              <div className="flex flex-col gap-2">
+                <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Link to Habit</p>
+                <div className="relative flex h-14 w-full items-center rounded-lg border-none bg-input-light p-4 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary">
+                  <select
+                    value={habitId || ''}
+                    onChange={(e) => setHabitId(e.target.value ? parseInt(e.target.value, 10) : undefined)}
+                    className="w-full bg-transparent appearance-none"
+                  >
+                    <option value="">No Habit</option>
+                    {habits.map(habit => (
+                      <option key={habit.id} value={habit.id}>{habit.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">

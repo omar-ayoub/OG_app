@@ -3,16 +3,18 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTasks } from '../contexts/useTasks';
 import { useGoals } from '../contexts/useGoals'; // Import useGoals
+import { useHabits } from '../contexts/useHabits';
 import BottomNavBar from './BottomNavBar';
 
 function Dashboard() {
   const { tasks, toggleTaskCompletion, deleteTask, toggleSubTaskCompletion } = useTasks();
   const { goals } = useGoals(); // Consume goals from context
+  const { habits } = useHabits(); // Consume habits from context
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'Dashboard' | 'Tomorrow' | 'Week'>('Dashboard');
 
-  if (!tasks || !goals) { // Check for goals as well
+  if (!tasks || !goals || !habits) { // Check for goals and habits as well
     return <div>Loading...</div>;
   }
 
@@ -100,7 +102,15 @@ function Dashboard() {
       {/* My Habits Section */}
       <h2 className="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">My Habits</h2>
       <div className="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pl-4 pr-1">
-        {/* ... Habit Icons ... */}
+        {habits.map((habit) => (
+          <Link to={`/habit-details/${habit.id}`} key={habit.id} className="flex-shrink-0 w-32 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md flex flex-col items-center justify-center">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="material-symbols-outlined">{habit.icon}</span>
+            </div>
+            <p className="text-sm font-semibold text-text-light-primary dark:text-text-dark-primary mt-2 text-center">{habit.name}</p>
+            <p className="text-xs font-medium text-amber-500">🔥 {habit.streak} days</p>
+          </Link>
+        ))}
       </div>
 
       {/* Tasks Section */}
@@ -188,10 +198,10 @@ function Dashboard() {
               <span className="font-medium">Goal</span>
               <span className="material-symbols-outlined">flag</span>
             </Link>
-            <div className="flex items-center gap-3 bg-card-light dark:bg-card-dark p-3 rounded-lg shadow-lg">
+            <Link to="/create-habit" className="flex items-center gap-3 bg-card-light dark:bg-card-dark p-3 rounded-lg shadow-lg">
               <span className="font-medium">Habit</span>
               <span className="material-symbols-outlined">sync</span>
-            </div>
+            </Link>
           </div>
         )}
         <button onClick={() => setIsFabMenuOpen(!isFabMenuOpen)} className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg">

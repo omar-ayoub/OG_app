@@ -18,6 +18,9 @@ export interface Task {
   description?: string;
   subTasks?: SubTask[];
   goalId?: string;
+  isRepetitive?: boolean;
+  repeatFrequency?: 'daily' | 'weekly' | 'monthly';
+  habitId?: number;
 }
 
 export interface Category {
@@ -42,4 +45,5 @@ export interface Habit {
   goal: number;
   completedToday: boolean;
   progress: number;
+  taskIds?: number[];
 }

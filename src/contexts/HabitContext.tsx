@@ -5,10 +5,10 @@ import { HabitContext } from './HabitContextDefinition';
 
 // --- MOCK DATA ---
 const MOCK_HABITS: Habit[] = [
-  { id: 1, name: 'Read for 15 mins', icon: 'auto_stories', streak: 12, goal: 30, completedToday: false, progress: 73.33 },
-  { id: 2, name: 'Morning Meditation', icon: 'self_improvement', streak: 21, goal: 60, completedToday: true, progress: 66.66 },
-  { id: 3, name: 'Workout', icon: 'fitness_center', streak: 5, goal: 4, completedToday: false, progress: 50 },
-  { id: 4, name: 'Drink Water', icon: 'water_drop', streak: 33, goal: 3, completedToday: true, progress: 66.66 },
+  { id: 1, name: 'Read for 15 mins', icon: 'auto_stories', streak: 12, goal: 30, completedToday: false, progress: 73.33, taskIds: [] },
+  { id: 2, name: 'Morning Meditation', icon: 'self_improvement', streak: 21, goal: 60, completedToday: true, progress: 66.66, taskIds: [] },
+  { id: 3, name: 'Workout', icon: 'fitness_center', streak: 5, goal: 4, completedToday: false, progress: 50, taskIds: [] },
+  { id: 4, name: 'Drink Water', icon: 'water_drop', streak: 33, goal: 3, completedToday: true, progress: 66.66, taskIds: [] },
 ];
 
 // --- PROVIDER COMPONENT ---
@@ -33,6 +33,7 @@ export function HabitProvider({ children }: { children: ReactNode }) {
       goal: newHabitData.goal || 30,
       completedToday: false,
       progress: 0,
+      taskIds: newHabitData.taskIds || [],
     };
     setHabits((prevHabits) => [...prevHabits, newHabit]);
     setNextId(nextId + 1);

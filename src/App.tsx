@@ -8,6 +8,7 @@ import GoalDetailsPage from './components/GoalDetailsPage';
 import GoalOverviewPage from './components/GoalOverviewPage';
 import HabitOverviewPage from './components/HabitOverviewPage';
 import HabitDetailsPage from './components/HabitDetailsPage';
+import CreateHabitPage from './components/CreateHabitPage';
 import { TaskProvider } from './contexts/TaskContext';
 import { GoalProvider } from './contexts/GoalContext';
 import { HabitProvider } from './contexts/HabitContext';
@@ -27,6 +28,7 @@ function App() {
             <Route path="/goals" element={<GoalOverviewPage />} />
             <Route path="/habits" element={<HabitOverviewPage />} />
             <Route path="/habit-details/:id" element={<HabitDetailsPage />} />
+            <Route path="/create-habit" element={<CreateHabitPage />} />
           </Routes>
         </TaskProvider>
       </GoalProvider>

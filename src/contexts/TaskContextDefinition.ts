@@ -8,13 +8,16 @@ export type TaskContextType = {
   categories: Category[];
   toggleTaskCompletion: (id: number) => void;
   addTask: (newTaskData: Partial<Task>) => number;
-  editTask: (taskId: number, updatedTaskData: Partial<Task>) => void;
+
   deleteTask: (taskId: number) => void;
   getTask: (taskId: number) => Task | undefined;
   addCategory: (newCategory: Category) => void;
   deleteCategory: (categoryName: string) => void;
   addSubTask: (taskId: number, subTaskText: string) => void;
   toggleSubTaskCompletion: (taskId: number, subTaskId: number) => void;
+  editSubTask: (taskId: number, subTaskId: number, newText: string) => void;
+  deleteSubTask: (taskId: number, subTaskId: number) => void;
+  updateTask: (taskId: number, updatedData: Partial<Task>) => void;
 };
 
 // --- CREATE CONTEXT ---
