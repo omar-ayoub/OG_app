@@ -1,4 +1,4 @@
-# GEMINI.md - Project Context
+# GEMINI.md - Project Context --
 
 ## Project Overview
 
