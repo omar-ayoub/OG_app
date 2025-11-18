@@ -59,33 +59,33 @@ function Dashboard() {
   }).length;
 
   return (
-    <div className="relative flex h-screen w-full flex-col group/design-root overflow-hidden text-text-light-primary dark:text-text-dark-primary font-display bg-background-light dark:bg-background-dark">
+    <div className="page-container">
       {/* Top App Bar */}
-      <div className="flex flex-col gap-2 p-4 pb-2">
+      <div className="app-bar">
         <div className="flex items-center h-12 justify-between">
-          <h1 className="text-text-light-primary dark:text-text-dark-primary tracking-light text-[28px] font-bold leading-tight">Hi, Omar!</h1>
+          <h1 className="heading-page">Hi, Omar!</h1>
           <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-card-light dark:bg-card-dark">
             <span className="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary">notifications</span>
           </div>
         </div>
-        <p className="text-text-light-secondary dark:text-text-dark-secondary text-base font-normal leading-normal">
+        <p className="text-secondary">
           You have {incompleteTasks} {incompleteTasks === 1 ? 'task' : 'tasks'} for today.
         </p>
       </div>
 
       {/* My Goals Section */}
-      <h2 className="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">My Goals</h2>
-      <div className="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pl-4 pr-1">
+      <h2 className="heading-section content-section">My Goals</h2>
+      <div className="card-horizontal-container">
         {goals.map((goal) => {
           const goalTasks = tasks.filter(task => goal.tasks.includes(task.id));
           const completedGoalTasks = goalTasks.filter(task => task.isCompleted).length;
           const progress = goalTasks.length > 0 ? (completedGoalTasks / goalTasks.length) * 100 : 0;
 
           return (
-            <Link to={`/goal-details/${goal.id}`} key={goal.id} className="flex-shrink-0 w-64 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md">
+            <Link to={`/goal-details/${goal.id}`} key={goal.id} className="card-horizontal w-64">
               <div>
                 <h3 className="text-lg font-semibold text-text-light-primary dark:text-text-dark-primary">{goal.title}</h3>
-                {goal.description && <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mt-1">{goal.description}</p>}
+                {goal.description && <p className="text-small-secondary mt-1">{goal.description}</p>}
                 {goal.targetDate && <p className="text-xs text-text-light-secondary dark:text-text-dark-secondary mt-2">Target: {goal.targetDate}</p>}
                 <div className="mt-3">
                   <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700">
@@ -100,10 +100,10 @@ function Dashboard() {
       </div>
 
       {/* My Habits Section */}
-      <h2 className="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">My Habits</h2>
-      <div className="flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pl-4 pr-1">
+      <h2 className="heading-section content-section">My Habits</h2>
+      <div className="card-horizontal-container">
         {habits.map((habit) => (
-          <Link to={`/habit-details/${habit.id}`} key={habit.id} className="flex-shrink-0 w-32 rounded-xl bg-card-light dark:bg-card-dark p-4 mr-3 shadow-md flex flex-col items-center justify-center">
+          <Link to={`/habit-details/${habit.id}`} key={habit.id} className="card-horizontal w-32 flex flex-col items-center justify-center">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <span className="material-symbols-outlined">{habit.icon}</span>
             </div>
@@ -114,8 +114,8 @@ function Dashboard() {
       </div>
 
       {/* Tasks Section */}
-      <main className="flex-1 overflow-y-auto px-4 pt-5">
-        <h2 className="text-text-light-primary dark:text-text-dark-primary text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3">Tasks</h2>
+      <main className="content-main">
+        <h2 className="heading-section pb-3">Tasks</h2>
         <div className="flex w-full items-center gap-2 rounded-lg bg-background-light dark:bg-card-dark p-1 mb-4">
           <button
             onClick={() => setSelectedFilter('Dashboard')}
@@ -138,21 +138,20 @@ function Dashboard() {
         </div>
         <div className="flex flex-col gap-3">
           {filteredTasks.map((task) => (
-            <div key={task.id} className="flex flex-col gap-4 rounded-xl bg-card-light dark:bg-card-dark p-4">
+            <div key={task.id} className="card flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => toggleTaskCompletion(task.id)}
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${task.isCompleted ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
-                    }`}
+                  className={task.isCompleted ? 'task-checkbox-checked' : 'task-checkbox-unchecked'}
                 >
                   {task.isCompleted && <span className="material-symbols-outlined text-white !text-lg">check</span>}
                 </button>
                 <div className="flex-1">
                   <p className={`text-base font-medium ${task.isCompleted ? 'line-through' : ''}`}>{task.text}</p>
-                  <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">{task.time}</p>
+                  <p className="text-small-secondary">{task.time}</p>
                 </div>
                 <div
-                  className="rounded-full px-3 py-1 text-xs font-medium"
+                  className="category-tag"
                   style={{ backgroundColor: `${task.tagColor}20`, color: task.tagColor }}
                 >
                   {task.tag}
@@ -168,8 +167,7 @@ function Dashboard() {
                     <div key={subTask.id} className="flex items-center gap-4">
                       <button
                         onClick={() => toggleSubTaskCompletion(task.id, subTask.id)}
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 ${subTask.completed ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
-                          }`}
+                        className={subTask.completed ? 'subtask-checkbox-checked' : 'subtask-checkbox-unchecked'}
                       >
                         {subTask.completed && <span className="material-symbols-outlined text-white !text-base">check</span>}
                       </button>
@@ -188,21 +186,21 @@ function Dashboard() {
       <div className="absolute bottom-24 right-4 z-10">
         {isFabMenuOpen && (
           <div className="flex flex-col items-end gap-4 mb-4">
-            <Link to="/create-task" className="flex items-center gap-3 bg-card-light dark:bg-card-dark p-3 rounded-lg shadow-lg">
+            <Link to="/create-task" className="card flex items-center gap-3 shadow-lg">
               <span className="font-medium">Task</span>
               <span className="material-symbols-outlined">task</span>
             </Link>
-            <Link to="/create-goal" className="flex items-center gap-3 bg-card-light dark:bg-card-dark p-3 rounded-lg shadow-lg">
+            <Link to="/create-goal" className="card flex items-center gap-3 shadow-lg">
               <span className="font-medium">Goal</span>
               <span className="material-symbols-outlined">flag</span>
             </Link>
-            <Link to="/create-habit" className="flex items-center gap-3 bg-card-light dark:bg-card-dark p-3 rounded-lg shadow-lg">
+            <Link to="/create-habit" className="card flex items-center gap-3 shadow-lg">
               <span className="font-medium">Habit</span>
               <span className="material-symbols-outlined">sync</span>
             </Link>
           </div>
         )}
-        <button onClick={() => setIsFabMenuOpen(!isFabMenuOpen)} className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+        <button onClick={() => setIsFabMenuOpen(!isFabMenuOpen)} className="btn-fab">
           <span className="material-symbols-outlined !text-3xl">{isFabMenuOpen ? 'close' : 'add'}</span>
         </button>
       </div>

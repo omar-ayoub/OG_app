@@ -11,15 +11,13 @@ function BottomNavBar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-20 shrink-0 border-t border-gray-200 bg-background-light/80 px-4 pb-3 pt-2 backdrop-blur-sm dark:border-gray-800 dark:bg-background-dark/80">
+    <nav className="bottom-nav">
       <div className="flex">
         {navItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
-            className={`flex flex-1 flex-col items-center justify-end gap-1 ${
-              location.pathname === item.path ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
-            }`}
+            className={location.pathname === item.path ? 'bottom-nav-btn-active flex-1' : 'bottom-nav-btn flex-1'}
           >
             <span className="material-symbols-outlined">{item.icon}</span>
             <p className="text-xs font-medium">{item.label}</p>

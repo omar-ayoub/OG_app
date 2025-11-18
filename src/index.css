@@ -1,3 +1,294 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* ============================================
+     BUTTONS
+     ============================================ */
+
+  /* Base button - shared foundation */
+  .btn-base {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  /* Primary button - main actions */
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+    @apply bg-primary text-white;
+    @apply hover:bg-primary/90 active:bg-primary/80;
+  }
+
+  /* Secondary button - less prominent actions */
+  .btn-secondary {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+    @apply bg-transparent border-2 border-primary text-primary;
+    @apply hover:bg-primary/10 active:bg-primary/20;
+  }
+
+  /* Ghost button - text-only actions (Cancel, Edit) */
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+    @apply bg-transparent text-text-light-primary dark:text-text-dark-primary;
+    @apply hover:bg-card-light dark:hover:bg-card-dark;
+  }
+
+  /* Danger button - destructive actions (Delete) */
+  .btn-danger {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+    @apply bg-transparent text-red-500;
+    @apply hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30;
+  }
+
+  /* Icon button - FAB and icon-only buttons */
+  .btn-icon {
+    @apply flex items-center justify-center;
+    @apply rounded-full transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  /* FAB - Floating Action Button */
+  .btn-fab {
+    @apply flex items-center justify-center;
+    @apply rounded-full transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+    @apply h-14 w-14 bg-primary text-white shadow-fab;
+    @apply hover:bg-primary/90 active:bg-primary/80;
+  }
+
+
+  /* ============================================
+     FORM INPUTS
+     ============================================ */
+
+  /* Standard input field (text, date, time, email) */
+  .input-field {
+    @apply flex h-14 w-full rounded-lg border-none p-4;
+    @apply bg-input-light dark:bg-input-dark;
+    @apply text-text-light-primary dark:text-text-dark-primary;
+    @apply text-base font-normal leading-normal;
+    @apply placeholder:text-text-light-secondary dark:placeholder:text-text-dark-secondary;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  /* Textarea styling */
+  .input-textarea {
+    @apply input-field min-h-36 resize-none;
+  }
+
+  /* Select dropdown */
+  .input-select {
+    @apply input-field appearance-none cursor-pointer;
+  }
+
+  /* Checkbox styling */
+  .input-checkbox {
+    @apply h-5 w-5 rounded text-primary;
+    @apply focus:ring-2 focus:ring-primary/50;
+    @apply border-gray-300 dark:border-gray-600;
+  }
+
+  /* Input wrapper with icon */
+  .input-wrapper {
+    @apply relative flex items-center;
+  }
+
+  .input-icon {
+    @apply absolute right-4 top-1/2 -translate-y-1/2;
+    @apply text-text-light-secondary dark:text-text-dark-secondary;
+    @apply pointer-events-none;
+  }
+
+
+  /* ============================================
+     CARDS
+     ============================================ */
+
+  /* Standard card container */
+  .card {
+    @apply rounded-xl bg-card-light dark:bg-card-dark p-4;
+    @apply shadow-card dark:shadow-card-dark;
+  }
+
+  /* Interactive card with hover effects */
+  .card-interactive {
+    @apply card cursor-pointer transition-all duration-200;
+    @apply hover:shadow-md dark:hover:shadow-lg;
+    @apply active:scale-[0.98];
+  }
+
+  /* Horizontal scrolling card container */
+  .card-horizontal-container {
+    @apply flex overflow-x-auto;
+    @apply [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+    @apply pl-4 pr-1;
+  }
+
+  /* Individual card in horizontal scroll */
+  .card-horizontal {
+    @apply card flex-shrink-0 mr-3;
+  }
+
+
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+
+  /* Page title (Hi, Omar!) */
+  .heading-page {
+    @apply text-text-light-primary dark:text-text-dark-primary;
+    @apply text-[28px] font-bold leading-tight tracking-tight;
+  }
+
+  /* Section headers (My Goals, My Habits, Tasks) */
+  .heading-section {
+    @apply text-text-light-primary dark:text-text-dark-primary;
+    @apply text-[22px] font-bold leading-tight tracking-[-0.015em];
+  }
+
+  /* Standard body text */
+  .text-body {
+    @apply text-text-light-primary dark:text-text-dark-primary;
+    @apply text-base font-normal leading-normal;
+  }
+
+  /* Secondary/muted text */
+  .text-secondary {
+    @apply text-text-light-secondary dark:text-text-dark-secondary;
+    @apply text-base font-normal leading-normal;
+  }
+
+  /* Small secondary text */
+  .text-small-secondary {
+    @apply text-text-light-secondary dark:text-text-dark-secondary;
+    @apply text-sm font-normal;
+  }
+
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+
+  /* Full page container */
+  .page-container {
+    @apply relative flex h-screen w-full flex-col;
+    @apply bg-background-light dark:bg-background-dark;
+    @apply text-text-light-primary dark:text-text-dark-primary;
+    @apply font-display overflow-hidden;
+  }
+
+  /* Top app bar */
+  .app-bar {
+    @apply flex flex-col gap-2 p-4 pb-2;
+  }
+
+  /* Main content area */
+  .content-main {
+    @apply flex-1 overflow-y-auto px-4 pt-5;
+  }
+
+  /* Section with title and padding */
+  .content-section {
+    @apply px-4 pb-3 pt-5;
+  }
+
+  /* Form page container (Create/Edit pages) */
+  .form-page {
+    @apply fixed inset-0 bg-background-light dark:bg-background-dark z-20;
+  }
+
+  /* Form page header (with Cancel/Create buttons) */
+  .form-header {
+    @apply sticky top-0 z-10 flex items-center justify-between;
+    @apply bg-background-light/80 dark:bg-background-dark/80;
+    @apply p-4 pb-2 backdrop-blur-sm;
+  }
+
+  /* Form content area */
+  .form-content {
+    @apply flex-1 overflow-y-auto p-4 pt-0;
+  }
+
+
+  /* ============================================
+     CATEGORY TAG
+     ============================================ */
+
+  /* Category badge/tag */
+  .category-tag {
+    @apply rounded-full px-3 py-1 text-xs font-medium;
+  }
+
+
+  /* ============================================
+     TASK CHECKBOX
+     ============================================ */
+
+  /* Task completion checkbox */
+  .task-checkbox {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center;
+    @apply rounded-md border-2 transition-all duration-200;
+  }
+
+  .task-checkbox-unchecked {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center;
+    @apply rounded-md border-2 transition-all duration-200;
+    @apply border-text-light-secondary/50 dark:border-text-dark-secondary/50;
+    @apply hover:border-primary;
+  }
+
+  .task-checkbox-checked {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center;
+    @apply rounded-md border-2 transition-all duration-200;
+    @apply border-primary bg-primary;
+  }
+
+  /* Subtask checkbox (smaller) */
+  .subtask-checkbox {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center;
+    @apply rounded-md border-2 transition-all duration-200;
+  }
+
+  .subtask-checkbox-unchecked {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center;
+    @apply rounded-md border-2 transition-all duration-200;
+    @apply border-text-light-secondary/50 dark:border-text-dark-secondary/50;
+    @apply hover:border-primary;
+  }
+
+  .subtask-checkbox-checked {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center;
+    @apply rounded-md border-2 transition-all duration-200;
+    @apply border-primary bg-primary;
+  }
+
+
+  /* ============================================
+     BOTTOM NAVIGATION
+     ============================================ */
+
+  /* Bottom nav container */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-20;
+    @apply flex items-center justify-around;
+    @apply bg-card-light dark:bg-card-dark;
+    @apply border-t border-gray-200 dark:border-gray-700;
+    @apply h-16 px-4;
+  }
+
+  /* Bottom nav button */
+  .bottom-nav-btn {
+    @apply flex flex-col items-center justify-center;
+    @apply text-text-light-secondary dark:text-text-dark-secondary;
+    @apply transition-colors hover:text-primary;
+  }
+
+  .bottom-nav-btn-active {
+    @apply bottom-nav-btn text-primary;
+  }
+}

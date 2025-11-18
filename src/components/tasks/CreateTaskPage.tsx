@@ -67,110 +67,106 @@ function CreateTaskPage() {
   };
 
   return (
-    <div className="fixed inset-0 bg-background-light dark:bg-background-dark z-20">
+    <div className="form-page">
       <div className="flex h-full w-full flex-col">
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-background-light/80 p-4 pb-2 backdrop-blur-sm dark:bg-background-dark/80">
-          <button onClick={() => navigate(-1)} className="flex items-center justify-start">
-            <p className="shrink-0 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Cancel</p>
+        <div className="form-header">
+          <button onClick={() => navigate(-1)} className="btn-ghost p-0">
+            <p className="text-base font-medium">Cancel</p>
           </button>
-          <button onClick={handleCreate} className="flex items-center justify-end">
-            <p className="shrink-0 text-base font-bold leading-normal tracking-[0.015em] text-primary">Create</p>
+          <button onClick={handleCreate} className="btn-ghost p-0">
+            <p className="text-base font-bold text-primary">Create</p>
           </button>
         </div>
-        <main className="flex-1 overflow-y-auto p-4 pt-0">
+        <main className="form-content">
           <div className="flex flex-col gap-4">
             <input
-              className="form-input h-16 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl border-none bg-card-light p-4 text-2xl font-bold leading-tight tracking-[-0.015em] text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-2 focus:ring-primary/50 dark:bg-card-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+              className="input-field h-16 text-2xl font-bold tracking-[-0.015em] bg-card-light dark:bg-card-dark"
               placeholder="e.g., Finish Q3 report"
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
-            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+            <div className="card flex flex-col gap-4">
               <div className="flex flex-wrap items-end gap-4">
                 <label className="flex flex-1 flex-col min-w-40">
-                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Due Date</p>
-                  <div className="relative">
+                  <p className="pb-2 text-base font-medium">Due Date</p>
+                  <div className="input-wrapper">
                     <input
                       type="date"
-                      className="form-input flex h-14 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 pr-12 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                      className="input-field pr-12"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                     />
-                    <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">calendar_today</span>
+                    <span className="input-icon material-symbols-outlined">calendar_today</span>
                   </div>
                 </label>
                 <label className="flex flex-1 flex-col min-w-40">
-                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Time</p>
-                  <div className="relative">
+                  <p className="pb-2 text-base font-medium">Time</p>
+                  <div className="input-wrapper">
                     <input
                       type="time"
-                      className="form-input flex h-14 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 pr-12 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                      className="input-field pr-12"
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
                     />
-                    <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">schedule</span>
+                    <span className="input-icon material-symbols-outlined">schedule</span>
                   </div>
                 </label>
                 <label className="flex flex-1 flex-col min-w-40">
-                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">End Date</p>
-                  <div className="relative">
+                  <p className="pb-2 text-base font-medium">End Date</p>
+                  <div className="input-wrapper">
                     <input
                       type="date"
-                      className="form-input flex h-14 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border-none bg-input-light p-4 pr-12 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                      className="input-field pr-12"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                     />
-                    <span className="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-light-secondary dark:text-text-dark-secondary">event</span>
+                    <span className="input-icon material-symbols-outlined">event</span>
                   </div>
                 </label>
               </div>
             </div>
-            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+            <div className="card flex flex-col gap-4">
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   checked={isRepetitive}
                   onChange={(e) => setIsRepetitive(e.target.checked)}
-                  className="form-checkbox h-5 w-5 rounded text-primary focus:ring-primary/50"
+                  className="input-checkbox"
                 />
-                <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Repetitive Task</p>
+                <p className="text-base font-medium">Repetitive Task</p>
               </label>
               {isRepetitive && (
                 <div className="flex flex-col gap-2">
-                  <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Repeat Frequency</p>
-                  <div className="relative flex h-14 w-full items-center rounded-lg border-none bg-input-light p-4 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary">
-                    <select
-                      value={repeatFrequency || ''}
-                      onChange={(e) => setRepeatFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                      className="w-full bg-transparent appearance-none"
-                    >
-                      <option value="">Select Frequency</option>
-                      <option value="daily">Daily</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
-                    </select>
-                  </div>
+                  <p className="pb-2 text-base font-medium">Repeat Frequency</p>
+                  <select
+                    value={repeatFrequency || ''}
+                    onChange={(e) => setRepeatFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                    className="input-select"
+                  >
+                    <option value="">Select Frequency</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+            <div className="card flex flex-col gap-4">
               <div className="flex flex-col">
-                <p className="pb-2 text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Category</p>
-                <div className="relative flex h-14 w-full items-center rounded-lg border-none bg-input-light p-4 text-base font-normal leading-normal text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-0 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary">
-                  <select
-                    value={tag}
-                    onChange={(e) => setTag(e.target.value)}
-                    className="w-full bg-transparent appearance-none"
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.name} value={cat.name}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
+                <p className="pb-2 text-base font-medium">Category</p>
+                <select
+                  value={tag}
+                  onChange={(e) => setTag(e.target.value)}
+                  className="input-select"
+                >
+                  {categories.map(cat => (
+                    <option key={cat.name} value={cat.name}>{cat.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
-              <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Sub-tasks</p>
+            <div className="card flex flex-col gap-4">
+              <p className="text-base font-medium">Sub-tasks</p>
               <div className="flex flex-col gap-2">
                 {subTasks.map(subTask => (
                   <div key={subTask.id} className="flex items-center justify-between">
@@ -184,16 +180,16 @@ function CreateTaskPage() {
                   value={newSubTaskText}
                   onChange={(e) => setNewSubTaskText(e.target.value)}
                   placeholder="Add a new sub-task"
-                  className="form-input flex-1 rounded-lg border-none bg-input-light p-2 text-sm text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-2 focus:ring-primary/50 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                  className="input-field flex-1 h-10 text-sm"
                 />
-                <button onClick={handleAddSubTask} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white">Add</button>
+                <button onClick={handleAddSubTask} className="btn-primary px-4 py-2 text-sm">Add</button>
               </div>
             </div>
-            <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+            <div className="card flex flex-col gap-4">
               <label className="flex flex-1 flex-col min-w-40">
-                <p className="text-base font-medium leading-normal pb-2 text-text-light-primary dark:text-text-dark-primary">Description</p>
+                <p className="text-base font-medium pb-2">Description</p>
                 <textarea
-                  className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 focus:ring-0 border-none bg-input-light dark:bg-input-dark min-h-36 placeholder:text-text-light-secondary dark:placeholder:text-text-dark-secondary p-4 text-base font-normal leading-normal"
+                  className="input-textarea"
                   placeholder="Add more details..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
