@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useTasks } from '../contexts/useTasks';
-import BottomNavBar from './BottomNavBar';
+import { useTasks } from '../../contexts/useTasks';
+import BottomNavBar from '../layout/BottomNavBar';
 
 function PlannerPage() {
   const { tasks } = useTasks();
@@ -103,42 +103,42 @@ function PlannerPage() {
             {/* Event Cards Container */}
             <div className="relative h-full">
               {tasks
-              .filter(task => task.startDate === formatDate(currentDate))
-              .map(task => {
-                const startMinutes = timeToMinutes(task.time);
-                // Assuming a default duration of 1 hour if no end time is provided
-                const endMinutes = task.endDate ? timeToMinutes(task.endDate) : startMinutes + 60;
-                const durationMinutes = endMinutes - startMinutes;
+                .filter(task => task.startDate === formatDate(currentDate))
+                .map(task => {
+                  const startMinutes = timeToMinutes(task.time);
+                  // Assuming a default duration of 1 hour if no end time is provided
+                  const endMinutes = task.endDate ? timeToMinutes(task.endDate) : startMinutes + 60;
+                  const durationMinutes = endMinutes - startMinutes;
 
-                const top = ((startMinutes - START_HOUR * 60) / 60) * PIXELS_PER_HOUR;
-                const height = (durationMinutes / 60) * PIXELS_PER_HOUR;
+                  const top = ((startMinutes - START_HOUR * 60) / 60) * PIXELS_PER_HOUR;
+                  const height = (durationMinutes / 60) * PIXELS_PER_HOUR;
 
-                if (top < 0) return null; // Don't render tasks before the start hour
+                  if (top < 0) return null; // Don't render tasks before the start hour
 
-                return (
-                  <div key={task.id} className="absolute w-full" style={{ top: `${top}px`, height: `${height}px` }}>
-                    <div className="relative h-full overflow-hidden rounded-lg bg-white dark:bg-gray-800/50 shadow-sm mr-2">
-                      <div className="absolute left-0 top-0 h-full w-1.5" style={{ backgroundColor: task.tagColor }}></div>
-                      <div className="flex items-start gap-2 pl-4 pr-2 pt-2">
-                        <div className="flex flex-col">
-                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{task.text}</p>
-                          {task.description && <p className="text-xs text-gray-500 dark:text-gray-400">{task.description}</p>}
-                          {task.subTasks && task.subTasks.some(st => !st.completed) && (
-                            <div className="mt-2">
-                              <p className="text-xs font-bold text-gray-600 dark:text-gray-300">Unfinished Subtasks:</p>
-                              <ul className="list-disc pl-5">
-                                {task.subTasks.filter(st => !st.completed).map(subTask => (
-                                  <li key={subTask.id} className="text-xs text-gray-500 dark:text-gray-400">{subTask.text}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+                  return (
+                    <div key={task.id} className="absolute w-full" style={{ top: `${top}px`, height: `${height}px` }}>
+                      <div className="relative h-full overflow-hidden rounded-lg bg-white dark:bg-gray-800/50 shadow-sm mr-2">
+                        <div className="absolute left-0 top-0 h-full w-1.5" style={{ backgroundColor: task.tagColor }}></div>
+                        <div className="flex items-start gap-2 pl-4 pr-2 pt-2">
+                          <div className="flex flex-col">
+                            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{task.text}</p>
+                            {task.description && <p className="text-xs text-gray-500 dark:text-gray-400">{task.description}</p>}
+                            {task.subTasks && task.subTasks.some(st => !st.completed) && (
+                              <div className="mt-2">
+                                <p className="text-xs font-bold text-gray-600 dark:text-gray-300">Unfinished Subtasks:</p>
+                                <ul className="list-disc pl-5">
+                                  {task.subTasks.filter(st => !st.completed).map(subTask => (
+                                    <li key={subTask.id} className="text-xs text-gray-500 dark:text-gray-400">{subTask.text}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </div>
         </div>

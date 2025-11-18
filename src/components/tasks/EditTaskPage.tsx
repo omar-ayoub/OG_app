@@ -1,9 +1,9 @@
 // src/components/EditTaskPage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useTasks } from '../contexts/useTasks';
-import { useHabits } from '../contexts/useHabits';
-import type { SubTask } from '../types';
+import { useTasks } from '../../contexts/useTasks';
+import { useHabits } from '../../contexts/useHabits';
+import type { SubTask } from '../../types';
 
 function EditTaskPage() {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
-import { useGoals } from '../contexts/useGoals';
-import { useTasks } from '../contexts/useTasks';
+import { useGoals } from '../../contexts/useGoals';
+import { useTasks } from '../../contexts/useTasks';
 import { Link } from 'react-router-dom';
-import BottomNavBar from './BottomNavBar';
+import BottomNavBar from '../layout/BottomNavBar';
 
 function GoalOverviewPage() {
   const { goals } = useGoals();
@@ -73,7 +73,7 @@ function GoalOverviewPage() {
           <span className="material-symbols-outlined text-3xl"> add </span>
         </Link>
       </div>
-      
+
       {/* Bottom Navigation Bar */}
       <BottomNavBar />
     </div>

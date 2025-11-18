@@ -1,9 +1,9 @@
 // src/components/GoalDetailsPage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGoals } from '../contexts/useGoals';
-import { useTasks } from '../contexts/useTasks';
-import { type Goal } from '../types';
+import { useGoals } from '../../contexts/useGoals';
+import { useTasks } from '../../contexts/useTasks';
+import { type Goal } from '../../types';
 
 function GoalDetailsPage() {
   const navigate = useNavigate();

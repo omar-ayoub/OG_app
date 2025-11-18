@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useHabits } from '../contexts/useHabits';
+import { useHabits } from '../../contexts/useHabits';
 
 function CreateHabitPage() {
   const navigate = useNavigate();

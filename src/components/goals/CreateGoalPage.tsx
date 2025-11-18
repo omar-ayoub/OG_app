@@ -1,8 +1,7 @@
-// src/components/CreateGoalPage.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useGoals } from '../contexts/useGoals';
-import { useTasks } from '../contexts/useTasks';
+import { useGoals } from '../../contexts/useGoals';
+import { useTasks } from '../../contexts/useTasks';
 
 function CreateGoalPage() {
   const navigate = useNavigate();
@@ -17,8 +16,8 @@ function CreateGoalPage() {
 
   const assignedTaskIds = new Set(goals.flatMap(goal => goal.tasks));
 
-  const incompleteTasks = tasks.filter(task => 
-    !task.isCompleted && 
+  const incompleteTasks = tasks.filter(task =>
+    !task.isCompleted &&
     (!assignedTaskIds.has(task.id) || selectedTaskIds.includes(task.id))
   );
 

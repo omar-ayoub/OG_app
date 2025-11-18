@@ -1,15 +1,15 @@
-// This is src/components/Dashboard.tsx
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTasks } from '../contexts/useTasks';
-import { useGoals } from '../contexts/useGoals'; // Import useGoals
-import { useHabits } from '../contexts/useHabits';
-import BottomNavBar from './BottomNavBar';
+import { useTasks } from '../../contexts/useTasks';
+import { useGoals } from '../../contexts/useGoals';
+import { useHabits } from '../../contexts/useHabits';
+import BottomNavBar from '../layout/BottomNavBar';
 
 function Dashboard() {
-  const { tasks, toggleTaskCompletion, deleteTask, toggleSubTaskCompletion } = useTasks();
-  const { goals } = useGoals(); // Consume goals from context
-  const { habits } = useHabits(); // Consume habits from context
+  const { tasks, toggleTaskCompletion, toggleSubTaskCompletion, deleteTask } = useTasks();
+  const { goals } = useGoals();
+  const { habits } = useHabits();
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'Dashboard' | 'Tomorrow' | 'Week'>('Dashboard');
@@ -27,8 +27,8 @@ function Dashboard() {
     const task = new Date(taskDate);
 
     return task.getDate() === tomorrow.getDate() &&
-           task.getMonth() === tomorrow.getMonth() &&
-           task.getFullYear() === tomorrow.getFullYear();
+      task.getMonth() === tomorrow.getMonth() &&
+      task.getFullYear() === tomorrow.getFullYear();
   };
 
   const getFilteredTasks = () => {
@@ -142,9 +142,8 @@ function Dashboard() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => toggleTaskCompletion(task.id)}
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${
-                    task.isCompleted ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
-                  }`}
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${task.isCompleted ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
+                    }`}
                 >
                   {task.isCompleted && <span className="material-symbols-outlined text-white !text-lg">check</span>}
                 </button>
@@ -169,9 +168,8 @@ function Dashboard() {
                     <div key={subTask.id} className="flex items-center gap-4">
                       <button
                         onClick={() => toggleSubTaskCompletion(task.id, subTask.id)}
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 ${
-                          subTask.completed ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
-                        }`}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 ${subTask.completed ? 'border-primary bg-primary' : 'border-text-light-secondary/50 dark:border-text-dark-secondary/50'
+                          }`}
                       >
                         {subTask.completed && <span className="material-symbols-outlined text-white !text-base">check</span>}
                       </button>
@@ -185,7 +183,7 @@ function Dashboard() {
         </div>
         <div className="h-24"></div> {/* Spacer for FAB and Bottom Nav */}
       </main>
-      
+
       {/* Floating Action Button */}
       <div className="absolute bottom-24 right-4 z-10">
         {isFabMenuOpen && (

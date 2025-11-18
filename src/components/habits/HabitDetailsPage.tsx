@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useHabits } from '../contexts/useHabits';
+import { useHabits } from '../../contexts/useHabits';
 
 function HabitDetailsPage() {
   const navigate = useNavigate();

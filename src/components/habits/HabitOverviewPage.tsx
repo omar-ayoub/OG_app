@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useHabits } from '../contexts/useHabits';
-import BottomNavBar from './BottomNavBar';
+import { useHabits } from '../../contexts/useHabits';
+import BottomNavBar from '../layout/BottomNavBar';
 
 function HabitOverviewPage() {
   const { habits, toggleHabitCompletion } = useHabits();

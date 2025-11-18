@@ -1,8 +1,8 @@
 // src/components/CreateTaskPage.tsx
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTasks } from '../contexts/useTasks';
-import type { SubTask } from '../types';
+import { useTasks } from '../../contexts/useTasks';
+import type { SubTask } from '../../types';
 
 function CreateTaskPage() {
   const navigate = useNavigate();
