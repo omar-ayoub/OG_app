@@ -4,26 +4,33 @@ import CreateTaskPage from './components/CreateTaskPage';
 import EditTaskPage from './components/EditTaskPage';
 import PlannerPage from './components/PlannerPage';
 import CreateGoalPage from './components/CreateGoalPage';
-import GoalDetailsPage from './components/GoalDetailsPage'; // Import GoalDetailsPage
+import GoalDetailsPage from './components/GoalDetailsPage';
 import GoalOverviewPage from './components/GoalOverviewPage';
+import HabitOverviewPage from './components/HabitOverviewPage';
+import HabitDetailsPage from './components/HabitDetailsPage';
 import { TaskProvider } from './contexts/TaskContext';
-import { GoalProvider } from './contexts/GoalContext'; // Import GoalProvider
+import { GoalProvider } from './contexts/GoalContext';
+import { HabitProvider } from './contexts/HabitContext';
 
 function App() {
   return (
-    <GoalProvider> {/* Wrap with GoalProvider */}
-      <TaskProvider>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/create-task" element={<CreateTaskPage />} />
-          <Route path="/edit-task/:id" element={<EditTaskPage />} />
-          <Route path="/planner" element={<PlannerPage />} />
-          <Route path="/create-goal" element={<CreateGoalPage />} />
-          <Route path="/goal-details/:id" element={<GoalDetailsPage />} /> {/* New route for GoalDetailsPage */}
-          <Route path="/goals" element={<GoalOverviewPage />} />
-        </Routes>
-      </TaskProvider>
-    </GoalProvider>
+    <HabitProvider>
+      <GoalProvider>
+        <TaskProvider>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/create-task" element={<CreateTaskPage />} />
+            <Route path="/edit-task/:id" element={<EditTaskPage />} />
+            <Route path="/planner" element={<PlannerPage />} />
+            <Route path="/create-goal" element={<CreateGoalPage />} />
+            <Route path="/goal-details/:id" element={<GoalDetailsPage />} />
+            <Route path="/goals" element={<GoalOverviewPage />} />
+            <Route path="/habits" element={<HabitOverviewPage />} />
+            <Route path="/habit-details/:id" element={<HabitDetailsPage />} />
+          </Routes>
+        </TaskProvider>
+      </GoalProvider>
+    </HabitProvider>
   );
 }
 

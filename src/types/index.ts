@@ -33,3 +33,13 @@ export interface Goal {
   tasks: number[];
   completed: boolean;
 }
+
+export interface Habit {
+  id: number;
+  name: string;
+  icon: string;
+  streak: number;
+  goal: number;
+  completedToday: boolean;
+  progress: number;
+}

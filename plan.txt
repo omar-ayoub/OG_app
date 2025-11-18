@@ -61,10 +61,15 @@ The application's state management for tasks and categories has been refactored 
 - Goal Details Page: Goal cards on the dashboard are now clickable, leading to a dedicated Goal Details page. This page displays comprehensive goal information and allows users to edit goal details, mark tasks as complete, and mark the entire goal as complete/incomplete. From this page, users can also edit existing linked tasks or add new tasks, with appropriate redirection back to the Goal Details page after task creation or editing. Users can also delete goals from this page.
 - Goal Overview Page: A dedicated page has been created to display all goals with their progress and linked tasks. The bottom navigation bar now includes a link to this page.
 
+✅ Feature: Habit Management (Completed)
+- Habit Type Definition: Defined the `Habit` interface in `src/types/index.ts`.
+- State Management: Created `HabitContext`, `HabitProvider`, and `useHabits` hook for managing habit-related state.
+- Habit Overview Page: Implemented `HabitOverviewPage.tsx` to display a list of habits.
+- Habit Details Page: Implemented `HabitDetailsPage.tsx` to show detailed information for a selected habit.
+- Navigation Integration: Added routes for habit pages in `App.tsx` and updated the bottom navigation bar in `Dashboard.tsx` to link to the `HabitOverviewPage`.
+
 🎯 Next Steps
-- Implement state management for Habits using React Context.
 - Establish relationships and linking mechanisms between Tasks, Goals, and Habits.
-- Develop UI components for Habits sections.
 - Plan future features (e.g., calendar view, habit tracking logic).
 - Refine UI/UX based on user feedback.
 

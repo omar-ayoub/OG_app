@@ -209,10 +209,10 @@ function Dashboard() {
             <span className="material-symbols-outlined">calendar_month</span>
             <p className="text-xs font-medium">Planner</p>
           </Link>
-          <a className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400" href="#">
+          <Link to="/habits" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
             <span className="material-symbols-outlined">repeat</span>
             <p className="text-xs font-medium">Habits</p>
-          </a>
+          </Link>
           <Link to="/goals" className="flex flex-1 flex-col items-center justify-end gap-1 text-gray-500 dark:text-gray-400">
             <span className="material-symbols-outlined">track_changes</span>
             <p className="text-xs font-medium">Goals</p>
