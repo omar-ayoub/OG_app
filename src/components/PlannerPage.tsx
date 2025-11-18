@@ -123,6 +123,16 @@ function PlannerPage() {
                         <div className="flex flex-col">
                           <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{task.text}</p>
                           {task.description && <p className="text-xs text-gray-500 dark:text-gray-400">{task.description}</p>}
+                          {task.subTasks && task.subTasks.some(st => !st.completed) && (
+                            <div className="mt-2">
+                              <p className="text-xs font-bold text-gray-600 dark:text-gray-300">Unfinished Subtasks:</p>
+                              <ul className="list-disc pl-5">
+                                {task.subTasks.filter(st => !st.completed).map(subTask => (
+                                  <li key={subTask.id} className="text-xs text-gray-500 dark:text-gray-400">{subTask.text}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

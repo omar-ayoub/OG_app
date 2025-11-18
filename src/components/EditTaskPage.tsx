@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTasks } from '../contexts/useTasks';
+import type { SubTask } from '../types';
 
 function EditTaskPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addTask, editTask, getTask, categories, addSubTask } = useTasks();
+  const { addTask, editTask, getTask, categories, addSubTask, editSubTask, deleteSubTask } = useTasks();
 
   const [formData, setFormData] = useState({
     text: '',
@@ -16,6 +17,9 @@ function EditTaskPage() {
     description: '',
   });
   const [newSubTaskText, setNewSubTaskText] = useState('');
+  const [subTasks, setSubTasks] = useState<SubTask[]>([]);
+  const [editingSubTaskId, setEditingSubTaskId] = useState<number | null>(null);
+  const [editingSubTaskText, setEditingSubTaskText] = useState('');
 
   const isEditMode = id !== undefined;
   const task = isEditMode ? getTask(parseInt(id, 10)) : undefined;
@@ -30,6 +34,7 @@ function EditTaskPage() {
           tag: task.tag,
           description: task.description || '',
         });
+        setSubTasks(task.subTasks || []);
       }, 0);
     } else {
       // Reset form data when not in edit mode (e.g., creating a new task)
@@ -41,6 +46,7 @@ function EditTaskPage() {
           tag: categories[0]?.name || '',
           description: '',
         });
+        setSubTasks([]);
       }, 0);
     }
   }, [id, isEditMode, getTask, categories, task]);
@@ -63,6 +69,7 @@ function EditTaskPage() {
       tag: selectedCategory.name,
       tagColor: selectedCategory.color,
       description: formData.description,
+      subTasks: subTasks,
     };
 
     if (isEditMode) {
@@ -87,6 +94,27 @@ function EditTaskPage() {
       const taskId = parseInt(id, 10);
       addSubTask(taskId, newSubTaskText);
       setNewSubTaskText('');
+    }
+  };
+
+  const handleEditSubTask = (subTask: SubTask) => {
+    setEditingSubTaskId(subTask.id);
+    setEditingSubTaskText(subTask.text);
+  };
+
+  const handleSaveSubTask = (subTaskId: number) => {
+    if (editingSubTaskText.trim() && isEditMode) {
+      const taskId = parseInt(id, 10);
+      editSubTask(taskId, subTaskId, editingSubTaskText);
+      setEditingSubTaskId(null);
+      setEditingSubTaskText('');
+    }
+  };
+
+  const handleDeleteSubTask = (subTaskId: number) => {
+    if (isEditMode) {
+      const taskId = parseInt(id, 10);
+      deleteSubTask(taskId, subTaskId);
     }
   };
 
@@ -157,9 +185,26 @@ function EditTaskPage() {
               <div className="flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
                 <p className="text-base font-medium leading-normal text-text-light-primary dark:text-text-dark-primary">Sub-tasks</p>
                 <div className="flex flex-col gap-2">
-                  {task?.subTasks?.map(subTask => (
+                  {subTasks.map(subTask => (
                     <div key={subTask.id} className="flex items-center justify-between">
-                      <p className={`text-sm ${subTask.completed ? 'line-through' : ''}`}>{subTask.text}</p>
+                      {editingSubTaskId === subTask.id ? (
+                        <input
+                          type="text"
+                          value={editingSubTaskText}
+                          onChange={(e) => setEditingSubTaskText(e.target.value)}
+                          className="form-input flex-1 rounded-lg border-none bg-input-light p-2 text-sm text-text-light-primary placeholder:text-text-light-secondary focus:outline-0 focus:ring-2 focus:ring-primary/50 dark:bg-input-dark dark:text-text-dark-primary dark:placeholder:text-text-dark-secondary"
+                        />
+                      ) : (
+                        <p className={`text-sm ${subTask.completed ? 'line-through' : ''}`}>{subTask.text}</p>
+                      )}
+                      <div className="flex gap-2">
+                        {editingSubTaskId === subTask.id ? (
+                          <button onClick={() => handleSaveSubTask(subTask.id)} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white">Save</button>
+                        ) : (
+                          <button onClick={() => handleEditSubTask(subTask)} className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-gray-800">Edit</button>
+                        )}
+                        <button onClick={() => handleDeleteSubTask(subTask.id)} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white">Delete</button>
+                      </div>
                     </div>
                   ))}
                 </div>

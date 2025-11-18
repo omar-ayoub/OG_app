@@ -27,9 +27,22 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const toggleTaskCompletion = (id: number) => {
     setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
-      )
+      prevTasks.map((task) => {
+        if (task.id === id) {
+          const newIsCompleted = !task.isCompleted;
+          const updatedSubTasks =
+            task.subTasks?.map((sub) => ({
+              ...sub,
+              completed: newIsCompleted,
+            })) || [];
+          return {
+            ...task,
+            isCompleted: newIsCompleted,
+            subTasks: updatedSubTasks,
+          };
+        }
+        return task;
+      })
     );
   };
 
@@ -98,14 +111,52 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const toggleSubTaskCompletion = (taskId: number, subTaskId: number) => {
     setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.id === taskId) {
+          const updatedSubTasks = (task.subTasks || []).map((subTask) =>
+            subTask.id === subTaskId
+              ? { ...subTask, completed: !subTask.completed }
+              : subTask
+          );
+
+          const allSubTasksCompleted = updatedSubTasks.every(
+            (subTask) => subTask.completed
+          );
+
+          return {
+            ...task,
+            isCompleted: allSubTasksCompleted,
+            subTasks: updatedSubTasks,
+          };
+        }
+        return task;
+      })
+    );
+  };
+
+  const editSubTask = (taskId: number, subTaskId: number, newText: string) => {
+    setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === taskId
           ? {
               ...task,
               subTasks: (task.subTasks || []).map((subTask) =>
-                subTask.id === subTaskId
-                  ? { ...subTask, completed: !subTask.completed }
-                  : subTask
+                subTask.id === subTaskId ? { ...subTask, text: newText } : subTask
+              ),
+            }
+          : task
+      )
+    );
+  };
+
+  const deleteSubTask = (taskId: number, subTaskId: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              subTasks: (task.subTasks || []).filter(
+                (subTask) => subTask.id !== subTaskId
               ),
             }
           : task
@@ -125,6 +176,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     deleteCategory,
     addSubTask,
     toggleSubTaskCompletion,
+    editSubTask,
+    deleteSubTask,
   };
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

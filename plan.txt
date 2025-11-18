@@ -29,10 +29,13 @@ A consistent bottom navigation bar has been implemented across the Dashboard and
 ✅ Feature: Task Management (Completed)
 Task View: The dashboard renders a dynamic list of tasks.
 Task Interaction: Users can toggle task completion status.
+- Cascading Completion: When a parent task is marked complete, all its subtasks are also marked complete.
+- Automatic Parent Completion: If all subtasks are completed, the parent task is automatically marked as complete.
 Task Count: The header dynamically shows the number of incomplete tasks.
 Task Creation: New tasks can be created via a dedicated page with a form.
 - FAB Menu: The floating action button now opens a menu to create a new Task, Goal, or Habit.
 Task Editing: Existing tasks can be edited using a dedicated page with a form.
+- Subtask Management: Users can now add, edit, and delete subtasks directly from the task editing page.
 Task Deletion: Tasks can be deleted directly from the dashboard.
 Date Selection: Users can select a date for a task using a calendar input.
 - Date Range Selection: Users can optionally select a start and end date for a task.
@@ -41,6 +44,7 @@ Category Management:
   - Users can select a category from a dropdown.
   - Users can add new categories with a custom name and color.
   - Users can delete existing categories.
+Planner Display: The planner now displays tasks along with their unfinished subtasks.
 
 ✅ Planner Page (Completed)
 A new planner page has been created, displaying tasks with their descriptions in a timeline view.
