@@ -6,6 +6,7 @@ function BottomNavBar() {
   const navItems = [
     { path: '/', icon: 'sunny', label: 'Dashboard' },
     { path: '/planner', icon: 'calendar_month', label: 'Planner' },
+    { path: '/expenses', icon: 'account_balance_wallet', label: 'Expenses' },
     { path: '/habits', icon: 'repeat', label: 'Habits' },
     { path: '/goals', icon: 'track_changes', label: 'Goals' },
   ];
