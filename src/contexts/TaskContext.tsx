@@ -3,25 +3,10 @@ import { useState, type ReactNode, useCallback } from 'react';
 import type { Task, Category, SubTask } from '../types';
 import { TaskContext } from './TaskContextDefinition';
 
-// --- MOCK DATA ---
-const MOCK_CATEGORIES: Category[] = [
-  { name: 'Work', color: '#3b82f6' },
-  { name: 'Personal', color: '#10b981' },
-  { name: 'Health', color: '#f59e0b' },
-  { name: 'Learning', color: '#8b5cf6' },
-];
-
-const MOCK_TASKS: Task[] = [
-  { id: 1, text: 'Complete UI mockups', time: '10:00 AM', startDate: '2025-11-17', endDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, subTasks: [{id: 1, text: "sub task 1", completed: false}, {id: 2, text: "sub task 2", completed: true}], isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
-  { id: 2, text: 'Review design system', time: '2:00 PM', startDate: '2025-11-17', endDate: '2025-11-17', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
-  { id: 3, text: 'Setup development environment', time: '9:00 AM', startDate: '2025-11-18', endDate: '2025-11-18', tag: 'Learning', tagColor: '#8b5cf6', isCompleted: false, isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
-  { id: 4, text: 'Deploy to production', time: 'Anytime', startDate: '2025-11-19', endDate: '2025-11-19', tag: 'Work', tagColor: '#3b82f6', isCompleted: false, isRepetitive: false, repeatFrequency: undefined, habitId: undefined },
-];
-
 // --- PROVIDER COMPONENT ---
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
-  const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [nextId, setNextId] = useState(5);
   const [nextSubTaskId, setNextSubTaskId] = useState(3);
 
@@ -103,9 +88,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       prevTasks.map((task) =>
         task.id === taskId
           ? {
-              ...task,
-              subTasks: [...(task.subTasks || []), newSubTask],
-            }
+            ...task,
+            subTasks: [...(task.subTasks || []), newSubTask],
+          }
           : task
       )
     );
@@ -142,11 +127,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       prevTasks.map((task) =>
         task.id === taskId
           ? {
-              ...task,
-              subTasks: (task.subTasks || []).map((subTask) =>
-                subTask.id === subTaskId ? { ...subTask, text: newText } : subTask
-              ),
-            }
+            ...task,
+            subTasks: (task.subTasks || []).map((subTask) =>
+              subTask.id === subTaskId ? { ...subTask, text: newText } : subTask
+            ),
+          }
           : task
       )
     );
@@ -157,11 +142,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       prevTasks.map((task) =>
         task.id === taskId
           ? {
-              ...task,
-              subTasks: (task.subTasks || []).filter(
-                (subTask) => subTask.id !== subTaskId
-              ),
-            }
+            ...task,
+            subTasks: (task.subTasks || []).filter(
+              (subTask) => subTask.id !== subTaskId
+            ),
+          }
           : task
       )
     );

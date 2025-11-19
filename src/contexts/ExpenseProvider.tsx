@@ -7,18 +7,6 @@ interface ExpenseProviderProps {
     children: ReactNode;
 }
 
-// Default expense categories
-const DEFAULT_CATEGORIES: ExpenseCategory[] = [
-    { id: '1', name: 'Groceries', icon: 'shopping_cart', color: '#10B981', isCustom: false },
-    { id: '2', name: 'Restaurant', icon: 'restaurant', color: '#F59E0B', isCustom: false },
-    { id: '3', name: 'Transportation', icon: 'directions_bus', color: '#3B82F6', isCustom: false },
-    { id: '4', name: 'Entertainment', icon: 'movie', color: '#8B5CF6', isCustom: false },
-    { id: '5', name: 'Shopping', icon: 'shopping_bag', color: '#EC4899', isCustom: false },
-    { id: '6', name: 'Health', icon: 'local_hospital', color: '#EF4444', isCustom: false },
-    { id: '7', name: 'Utilities', icon: 'bolt', color: '#F97316', isCustom: false },
-    { id: '8', name: 'Other', icon: 'more_horiz', color: '#6B7280', isCustom: false },
-];
-
 // Default payment methods
 const DEFAULT_PAYMENT_METHODS: PaymentMethod[] = [
     { id: '1', name: 'Cash', icon: 'payments' },
@@ -29,7 +17,7 @@ const DEFAULT_PAYMENT_METHODS: PaymentMethod[] = [
 
 export function ExpenseProvider({ children }: ExpenseProviderProps) {
     const [expenses, setExpenses] = useState<Expense[]>([]);
-    const [categories, setCategories] = useState<ExpenseCategory[]>(DEFAULT_CATEGORIES);
+    const [categories, setCategories] = useState<ExpenseCategory[]>([]);
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [recurringExpenses, setRecurringExpenses] = useState<RecurringExpense[]>([]);
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(DEFAULT_PAYMENT_METHODS);

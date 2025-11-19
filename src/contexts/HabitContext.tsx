@@ -71,33 +71,11 @@ const calculateBestStreak = (completedDates: string[]): number => {
   return bestStreak;
 };
 
-// --- MOCK DATA ---
-const MOCK_HABITS: Habit[] = [
-  {
-    id: 1,
-    name: 'Read for 15 mins',
-    icon: 'auto_stories',
-    completedDates: [],
-    frequency: 'daily',
-    goal: 1,
-    taskIds: []
-  },
-  {
-    id: 2,
-    name: 'Morning Meditation',
-    icon: 'self_improvement',
-    completedDates: [],
-    frequency: 'daily',
-    goal: 1,
-    taskIds: []
-  },
-];
-
 // --- PROVIDER COMPONENT ---
 export function HabitProvider({ children }: { children: ReactNode }) {
   const [habits, setHabits] = useState<Habit[]>(() => {
     const saved = localStorage.getItem('habits');
-    return saved ? JSON.parse(saved) : MOCK_HABITS;
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [nextId, setNextId] = useState(() => {
