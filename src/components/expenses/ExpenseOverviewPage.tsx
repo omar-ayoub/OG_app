@@ -140,6 +140,16 @@ export default function ExpenseOverviewPage() {
                                 <span className="material-symbols-outlined text-text-light-secondary">trending_up</span>
                                 Budgets
                             </button>
+                            <button
+                                onClick={() => {
+                                    navigate('/expense-analytics');
+                                    setShowMenu(false);
+                                }}
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                            >
+                                <span className="material-symbols-outlined text-text-light-secondary">pie_chart</span>
+                                Analytics
+                            </button>
                         </div>
                     </>
                 )}

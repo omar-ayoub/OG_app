@@ -13,6 +13,7 @@ import ExpenseOverviewPage from './components/expenses/ExpenseOverviewPage';
 import ExpenseDetailsPage from './components/expenses/ExpenseDetailsPage';
 import CategoryManagementPage from './components/expenses/CategoryManagementPage';
 import BudgetManagementPage from './components/expenses/BudgetManagementPage';
+import AnalyticsPage from './components/expenses/AnalyticsPage';
 import { TaskProvider } from './contexts/TaskContext';
 import { GoalProvider } from './contexts/GoalContext';
 import { HabitProvider } from './contexts/HabitContext';
@@ -39,6 +40,7 @@ function App() {
               <Route path="/expense-details/:id" element={<ExpenseDetailsPage />} />
               <Route path="/expense-categories" element={<CategoryManagementPage />} />
               <Route path="/expense-budgets" element={<BudgetManagementPage />} />
+              <Route path="/expense-analytics" element={<AnalyticsPage />} />
             </Routes>
           </TaskProvider>
         </GoalProvider>
