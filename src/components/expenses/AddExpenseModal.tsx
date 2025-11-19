@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useExpenses } from '../../contexts/useExpenses';
+import TagInput from './TagInput';
+import ReceiptUpload from './ReceiptUpload';
 
 interface AddExpenseModalProps {
     isOpen: boolean;
@@ -17,6 +19,8 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
     const [selectedTime, setSelectedTime] = useState('');
     const [description, setDescription] = useState('');
     const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState('');
+    const [tags, setTags] = useState<string[]>([]);
+    const [attachmentUrl, setAttachmentUrl] = useState<string | undefined>(undefined);
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
     const [showPaymentPicker, setShowPaymentPicker] = useState(false);
 
@@ -28,6 +32,8 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
             setSelectedTime(now.toTimeString().slice(0, 5));
             setSelectedCategoryId(categories[0]?.id || '');
             setSelectedPaymentMethodId(paymentMethods[0]?.id || '');
+            setTags([]);
+            setAttachmentUrl(undefined);
         }
     }, [isOpen, categories, paymentMethods]);
 
@@ -41,11 +47,16 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
             time: selectedTime,
             description: description.trim() || undefined,
             paymentMethodId: selectedPaymentMethodId || undefined,
+            tags: tags.length > 0 ? tags : undefined,
+            attachmentUrl,
         });
 
         // Reset form
         setAmount('');
+        setAmount('');
         setDescription('');
+        setTags([]);
+        setAttachmentUrl(undefined);
         onClose();
     };
 
@@ -81,8 +92,8 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
                                         setShowCategoryPicker(false);
                                     }}
                                     className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${selectedCategoryId === category.id
-                                            ? 'bg-primary/20 ring-2 ring-primary'
-                                            : 'bg-card-light dark:bg-card-dark hover:bg-input-light dark:hover:bg-input-dark'
+                                        ? 'bg-primary/20 ring-2 ring-primary'
+                                        : 'bg-card-light dark:bg-card-dark hover:bg-input-light dark:hover:bg-input-dark'
                                         }`}
                                 >
                                     <div
@@ -115,8 +126,8 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
                                         setShowPaymentPicker(false);
                                     }}
                                     className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${selectedPaymentMethodId === method.id
-                                            ? 'bg-primary/20 ring-2 ring-primary'
-                                            : 'bg-card-light dark:bg-card-dark hover:bg-input-light dark:hover:bg-input-dark'
+                                        ? 'bg-primary/20 ring-2 ring-primary'
+                                        : 'bg-card-light dark:bg-card-dark hover:bg-input-light dark:hover:bg-input-dark'
                                         }`}
                                 >
                                     <span className="material-symbols-outlined">{method.icon}</span>
@@ -147,8 +158,8 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
                         onClick={handleSave}
                         disabled={!amount || parseFloat(amount) <= 0}
                         className={`w-16 text-right text-base font-bold ${amount && parseFloat(amount) > 0
-                                ? 'text-primary opacity-100'
-                                : 'text-primary opacity-50'
+                            ? 'text-primary opacity-100'
+                            : 'text-primary opacity-50'
                             }`}
                     >
                         Add
@@ -263,6 +274,16 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
+
+                    {/* Tags */}
+                    <TagInput tags={tags} onChange={setTags} />
+
+                    {/* Receipt */}
+                    <ReceiptUpload
+                        attachmentUrl={attachmentUrl}
+                        onUpload={setAttachmentUrl}
+                        onRemove={() => setAttachmentUrl(undefined)}
+                    />
                 </div>
 
                 {/* Bottom Padding */}

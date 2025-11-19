@@ -1,94 +1,91 @@
-// src/components/expenses/EditExpenseModal.tsx
+// src/components/expenses/RecurringExpenseModal.tsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useExpenses } from '../../contexts/useExpenses';
-import TagInput from './TagInput';
-import ReceiptUpload from './ReceiptUpload';
+import { type RecurringExpense } from '../../types';
+import PaymentMethodPicker from './PaymentMethodPicker';
 
-interface EditExpenseModalProps {
+interface RecurringExpenseModalProps {
     isOpen: boolean;
     onClose: () => void;
-    expenseId: string;
+    editingExpense?: RecurringExpense | null;
 }
 
-export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExpenseModalProps) {
-    const navigate = useNavigate();
-    const { expenses, updateExpense, categories, paymentMethods } = useExpenses();
+export default function RecurringExpenseModal({ isOpen, onClose, editingExpense }: RecurringExpenseModalProps) {
+    const { addRecurringExpense, updateRecurringExpense, categories, paymentMethods } = useExpenses();
+
     const [amount, setAmount] = useState('');
-    const [selectedCategoryId, setSelectedCategoryId] = useState('');
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
     const [description, setDescription] = useState('');
-    const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
-    const [attachmentUrl, setAttachmentUrl] = useState<string | undefined>(undefined);
+    const [categoryId, setCategoryId] = useState('');
+    const [paymentMethodId, setPaymentMethodId] = useState('');
+    const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+    const [startDate, setStartDate] = useState('');
+
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
     const [showPaymentPicker, setShowPaymentPicker] = useState(false);
 
-    const expense = expenses.find(e => e.id === expenseId);
-
-    // Load expense data when modal opens
     useEffect(() => {
-        if (isOpen && expense) {
-            setAmount(expense.amount.toString());
-            setSelectedCategoryId(expense.categoryId);
-            setSelectedDate(expense.date);
-            setSelectedTime(expense.time);
-            setDescription(expense.description || '');
-            setSelectedPaymentMethodId(expense.paymentMethodId || paymentMethods[0]?.id || '');
-            setTags(expense.tags || []);
-            setAttachmentUrl(expense.attachmentUrl);
+        if (isOpen) {
+            if (editingExpense) {
+                setAmount(editingExpense.amount.toString());
+                setDescription(editingExpense.description || '');
+                setCategoryId(editingExpense.categoryId);
+                setPaymentMethodId(editingExpense.paymentMethodId || paymentMethods[0]?.id || '');
+                setFrequency(editingExpense.frequency);
+                setStartDate(editingExpense.startDate);
+            } else {
+                setAmount('');
+                setDescription('');
+                setCategoryId(categories[0]?.id || '');
+                setPaymentMethodId(paymentMethods[0]?.id || '');
+                setFrequency('monthly');
+                setStartDate(new Date().toISOString().split('T')[0]);
+            }
         }
-    }, [isOpen, expense, categories, paymentMethods]);
+    }, [isOpen, editingExpense, categories, paymentMethods]);
 
     const handleSave = () => {
-        if (!amount || parseFloat(amount) <= 0 || !expense) return;
+        if (!amount || parseFloat(amount) <= 0 || !categoryId || !startDate) return;
 
-        updateExpense(expense.id, {
+        const expenseData = {
             amount: parseFloat(amount),
-            categoryId: selectedCategoryId,
-            date: selectedDate,
-            time: selectedTime,
+            categoryId,
+            paymentMethodId,
+            frequency,
+            startDate,
             description: description.trim() || undefined,
-            paymentMethodId: selectedPaymentMethodId || undefined,
-            tags: tags.length > 0 ? tags : undefined,
-            attachmentUrl,
-        });
+            isActive: true,
+            lastGenerated: editingExpense?.lastGenerated
+        };
+
+        if (editingExpense) {
+            updateRecurringExpense(editingExpense.id, expenseData);
+        } else {
+            addRecurringExpense(expenseData);
+        }
         onClose();
     };
 
-    const selectedCategory = categories.find(c => c.id === selectedCategoryId);
-    const selectedPaymentMethod = paymentMethods.find(p => p.id === selectedPaymentMethodId);
+    const selectedCategory = categories.find(c => c.id === categoryId);
+    const selectedPaymentMethod = paymentMethods.find(p => p.id === paymentMethodId);
 
-    if (!isOpen || !expense) return null;
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30">
-            {/* Category Picker Modal */}
+            {/* Category Picker */}
             {showCategoryPicker && (
                 <div className="absolute inset-0 bg-black/50 z-10" onClick={() => setShowCategoryPicker(false)}>
                     <div className="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark rounded-t-xl p-6 max-h-[70vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="heading-section">Select Category</h3>
-                            <button
-                                onClick={() => {
-                                    navigate('/expense-categories');
-                                    onClose();
-                                }}
-                                className="text-sm text-primary font-medium"
-                            >
-                                Manage
-                            </button>
-                        </div>
+                        <h3 className="heading-section mb-4">Select Category</h3>
                         <div className="grid grid-cols-4 gap-4">
                             {categories.map(category => (
                                 <button
                                     key={category.id}
                                     onClick={() => {
-                                        setSelectedCategoryId(category.id);
+                                        setCategoryId(category.id);
                                         setShowCategoryPicker(false);
                                     }}
-                                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${selectedCategoryId === category.id
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${categoryId === category.id
                                         ? 'bg-primary/20 ring-2 ring-primary'
                                         : 'bg-card-light dark:bg-card-dark hover:bg-input-light dark:hover:bg-input-dark'
                                         }`}
@@ -109,31 +106,13 @@ export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExp
                 </div>
             )}
 
-            {/* Payment Method Picker Modal */}
+            {/* Payment Picker */}
             {showPaymentPicker && (
-                <div className="absolute inset-0 bg-black/50 z-10" onClick={() => setShowPaymentPicker(false)}>
-                    <div className="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark rounded-t-xl p-6" onClick={e => e.stopPropagation()}>
-                        <h3 className="heading-section mb-4">Payment Method</h3>
-                        <div className="space-y-2">
-                            {paymentMethods.map(method => (
-                                <button
-                                    key={method.id}
-                                    onClick={() => {
-                                        setSelectedPaymentMethodId(method.id);
-                                        setShowPaymentPicker(false);
-                                    }}
-                                    className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${selectedPaymentMethodId === method.id
-                                        ? 'bg-primary/20 ring-2 ring-primary'
-                                        : 'bg-card-light dark:bg-card-dark hover:bg-input-light dark:hover:bg-input-dark'
-                                        }`}
-                                >
-                                    <span className="material-symbols-outlined">{method.icon}</span>
-                                    <span className="font-medium">{method.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <PaymentMethodPicker
+                    selectedId={paymentMethodId}
+                    onSelect={setPaymentMethodId}
+                    onClose={() => setShowPaymentPicker(false)}
+                />
             )}
 
             {/* Main Modal */}
@@ -149,14 +128,12 @@ export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExp
                         <span className="text-base font-medium">Cancel</span>
                     </button>
                     <h2 className="flex-1 text-center text-lg font-bold text-text-light-primary dark:text-text-dark-primary">
-                        Edit Expense
+                        {editingExpense ? 'Edit Recurring' : 'New Recurring'}
                     </h2>
                     <button
                         onClick={handleSave}
                         disabled={!amount || parseFloat(amount) <= 0}
-                        className={`w-16 text-right text-base font-bold ${amount && parseFloat(amount) > 0
-                            ? 'text-primary opacity-100'
-                            : 'text-primary opacity-50'
+                        className={`w-16 text-right text-base font-bold ${amount && parseFloat(amount) > 0 ? 'text-primary opacity-100' : 'text-primary opacity-50'
                             }`}
                     >
                         Save
@@ -165,14 +142,12 @@ export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExp
 
                 {/* Content */}
                 <div className="flex flex-col gap-4 p-4 pt-2 max-h-[70vh] overflow-y-auto">
-                    {/* Amount Input */}
+                    {/* Amount */}
                     <div className="card">
                         <label className="flex flex-col w-full">
                             <p className="pb-2 text-base font-medium">Amount</p>
                             <div className="relative flex items-center">
-                                <span className="absolute left-4 text-3xl font-bold text-text-light-secondary dark:text-text-dark-secondary">
-                                    $
-                                </span>
+                                <span className="absolute left-4 text-3xl font-bold text-text-light-secondary dark:text-text-dark-secondary">$</span>
                                 <input
                                     className="input-field h-20 pl-12 pr-4 text-right text-4xl font-bold"
                                     placeholder="0.00"
@@ -185,7 +160,7 @@ export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExp
                         </label>
                     </div>
 
-                    {/* Details Section */}
+                    {/* Details */}
                     <div className="card divide-y divide-gray-200 dark:divide-gray-700">
                         {/* Category */}
                         <button
@@ -211,34 +186,38 @@ export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExp
                             </div>
                         </button>
 
-                        {/* Date */}
+                        {/* Frequency */}
+                        <div className="flex min-h-14 items-center justify-between gap-4 py-3">
+                            <div className="flex items-center gap-4">
+                                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-input-light dark:bg-input-dark">
+                                    <span className="material-symbols-outlined">update</span>
+                                </div>
+                                <p className="flex-1 truncate text-base font-normal">Frequency</p>
+                            </div>
+                            <select
+                                value={frequency}
+                                onChange={(e) => setFrequency(e.target.value as any)}
+                                className="bg-transparent text-right font-medium focus:outline-none"
+                            >
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+
+                        {/* Start Date */}
                         <div className="flex min-h-14 items-center justify-between gap-4 py-3">
                             <div className="flex items-center gap-4">
                                 <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-input-light dark:bg-input-dark">
                                     <span className="material-symbols-outlined">calendar_today</span>
                                 </div>
-                                <p className="flex-1 truncate text-base font-normal">Date</p>
+                                <p className="flex-1 truncate text-base font-normal">Start Date</p>
                             </div>
                             <input
                                 type="date"
-                                value={selectedDate}
-                                onChange={(e) => setSelectedDate(e.target.value)}
-                                className="input-field h-auto py-2 px-3 text-sm"
-                            />
-                        </div>
-
-                        {/* Time */}
-                        <div className="flex min-h-14 items-center justify-between gap-4 py-3">
-                            <div className="flex items-center gap-4">
-                                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-input-light dark:bg-input-dark">
-                                    <span className="material-symbols-outlined">schedule</span>
-                                </div>
-                                <p className="flex-1 truncate text-base font-normal">Time</p>
-                            </div>
-                            <input
-                                type="time"
-                                value={selectedTime}
-                                onChange={(e) => setSelectedTime(e.target.value)}
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
                                 className="input-field h-auto py-2 px-3 text-sm"
                             />
                         </div>
@@ -265,22 +244,12 @@ export default function EditExpenseModal({ isOpen, onClose, expenseId }: EditExp
                     <div className="card">
                         <textarea
                             className="input-textarea w-full"
-                            placeholder="Add a note..."
+                            placeholder="Description (e.g., Netflix Subscription)"
                             rows={3}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
-
-                    {/* Tags */}
-                    <TagInput tags={tags} onChange={setTags} />
-
-                    {/* Receipt */}
-                    <ReceiptUpload
-                        attachmentUrl={attachmentUrl}
-                        onUpload={setAttachmentUrl}
-                        onRemove={() => setAttachmentUrl(undefined)}
-                    />
                 </div>
 
                 {/* Bottom Padding */}

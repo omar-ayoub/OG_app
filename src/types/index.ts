@@ -83,13 +83,14 @@ export interface RecurringExpense {
   id: string;
   amount: number;
   categoryId: string;
-  description: string;
+  description?: string;
   frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
   startDate: string;
   endDate?: string; // Optional end date
   paymentMethodId?: string;
   tags?: string[];
   isActive: boolean;
+  lastGenerated?: string;
 }
 
 export interface Budget {
