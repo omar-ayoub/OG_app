@@ -366,11 +366,14 @@ import { Task, Goal } from './types';
 - [x] Habit management (creation, streak tracking)
 - [x] Planner page with timeline view
 - [x] State management refactor (Context API)
-- [x] **Design system modularization** ⭐ NEW
+- [x] **Design system modularization**
   - [x] Enhanced design tokens in Tailwind config
   - [x] Created component class library in `index.css`
   - [x] Migrated components to use design system
   - [x] Production build verification
+- [x] **UI Bug Fixes** ⭐ NEW
+  - [x] Fixed bottom navigation spacing/overlap issues
+  - [x] Fixed horizontal card container clipping (Goals/Habits)
 
 ### 🎯 Next Steps
 
@@ -396,6 +399,11 @@ import { Task, Goal } from './types';
 
 ## 🐛 Known Issues & Resolutions
 
+### Recently Fixed (November 18, 2025)
+- ✅ Bottom navigation spacing: Fixed overlap between navigation items
+- ✅ Horizontal card container clipping: Fixed habit and goal cards being cut off
+
+### Historical Issues
 All major issues have been resolved. See [`plan.txt`](./plan.txt) for historical debugging notes including:
 - Goal creation page input interactivity fixes
 - ESLint linter compliance improvements

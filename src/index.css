@@ -126,7 +126,7 @@
   .card-horizontal-container {
     @apply flex overflow-x-auto;
     @apply [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
-    @apply pl-4 pr-1;
+    @apply pl-4 pr-1 py-2;
   }
 
   /* Individual card in horizontal scroll */
@@ -275,15 +275,15 @@
   /* Bottom nav container */
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-20;
-    @apply flex items-center justify-around;
+    @apply flex items-center justify-around gap-2;
     @apply bg-card-light dark:bg-card-dark;
     @apply border-t border-gray-200 dark:border-gray-700;
-    @apply h-16 px-4;
+    @apply h-16 px-2;
   }
 
   /* Bottom nav button */
   .bottom-nav-btn {
-    @apply flex flex-col items-center justify-center;
+    @apply flex flex-col items-center justify-center gap-1 py-2 px-1;
     @apply text-text-light-secondary dark:text-text-dark-secondary;
     @apply transition-colors hover:text-primary;
   }

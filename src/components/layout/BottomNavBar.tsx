@@ -12,7 +12,7 @@ function BottomNavBar() {
 
   return (
     <nav className="bottom-nav">
-      <div className="flex">
+      <div className="flex gap-4 w-full">
         {navItems.map((item) => (
           <Link
             key={item.path}
