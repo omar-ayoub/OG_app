@@ -6,15 +6,19 @@ import { type ExpensePeriod, type ExpenseSortBy, type ExpenseSortOrder } from '.
 import BottomNavBar from '../layout/BottomNavBar';
 import AddExpenseModal from './AddExpenseModal';
 import SearchAndFilterBar from './SearchAndFilterBar';
+import ExportModal from './ExportModal';
+import BulkSelectionMode, { useSelection } from './BulkSelectionMode';
 
 export default function ExpenseOverviewPage() {
     const navigate = useNavigate();
-    const { categories, getExpensesByPeriod, getTotalSpent, getSpendingTrend } = useExpenses();
+    const { categories, getExpensesByPeriod, getTotalSpent, getSpendingTrend, deleteExpense } = useExpenses();
 
     // State
     const [selectedPeriod, setSelectedPeriod] = useState<ExpensePeriod>('weekly');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+    const [bulkMode, setBulkMode] = useState(false);
 
     // Filter & Sort State
     const [searchQuery, setSearchQuery] = useState('');
@@ -70,6 +74,9 @@ export default function ExpenseOverviewPage() {
 
         return result;
     }, [periodExpenses, selectedCategoryFilter, searchQuery, sortBy, sortOrder, categories]);
+
+    // Bulk selection
+    const selection = useSelection(filteredAndSortedExpenses.map(e => e.id));
 
     // Group expenses by date (only if sorting by date)
     const groupedExpenses = useMemo(() => {
@@ -160,6 +167,26 @@ export default function ExpenseOverviewPage() {
                                 <span className="material-symbols-outlined text-text-light-secondary">update</span>
                                 Recurring
                             </button>
+                            <button
+                                onClick={() => {
+                                    setIsExportModalOpen(true);
+                                    setShowMenu(false);
+                                }}
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                            >
+                                <span className="material-symbols-outlined text-text-light-secondary">download</span>
+                                Export
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setBulkMode(true);
+                                    setShowMenu(false);
+                                }}
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                            >
+                                <span className="material-symbols-outlined text-text-light-secondary">checklist</span>
+                                Bulk Select
+                            </button>
                         </div>
                     </>
                 )}
@@ -174,8 +201,8 @@ export default function ExpenseOverviewPage() {
                             <label
                                 key={period}
                                 className={`flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 text-sm font-medium leading-normal transition-all duration-200 ${selectedPeriod === period
-                                        ? 'bg-card-light dark:bg-background-dark shadow-sm text-text-light-primary dark:text-text-dark-primary'
-                                        : 'text-text-light-secondary dark:text-text-dark-secondary'
+                                    ? 'bg-card-light dark:bg-background-dark shadow-sm text-text-light-primary dark:text-text-dark-primary'
+                                    : 'text-text-light-secondary dark:text-text-dark-secondary'
                                     }`}
                             >
                                 <span className="truncate capitalize">{period}</span>
@@ -264,8 +291,17 @@ export default function ExpenseOverviewPage() {
                                             <div
                                                 key={expense.id}
                                                 className="card-interactive mb-3 flex items-center space-x-4"
-                                                onClick={() => navigate(`/expense-details/${expense.id}`)}
+                                                onClick={() => bulkMode ? selection.toggleSelection(expense.id) : navigate(`/expense-details/${expense.id}`)}
                                             >
+                                                {bulkMode && (
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selection.isSelected(expense.id)}
+                                                        onChange={() => selection.toggleSelection(expense.id)}
+                                                        className="size-5 rounded accent-primary"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                )}
                                                 <div
                                                     className="flex items-center justify-center size-12 rounded-full"
                                                     style={{ backgroundColor: `${category?.color}20` }}
@@ -301,8 +337,17 @@ export default function ExpenseOverviewPage() {
                                 <div
                                     key={expense.id}
                                     className="card-interactive mb-3 flex items-center space-x-4"
-                                    onClick={() => navigate(`/expense-details/${expense.id}`)}
+                                    onClick={() => bulkMode ? selection.toggleSelection(expense.id) : navigate(`/expense-details/${expense.id}`)}
                                 >
+                                    {bulkMode && (
+                                        <input
+                                            type="checkbox"
+                                            checked={selection.isSelected(expense.id)}
+                                            onChange={() => selection.toggleSelection(expense.id)}
+                                            className="size-5 rounded accent-primary"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    )}
                                     <div
                                         className="flex items-center justify-center size-12 rounded-full"
                                         style={{ backgroundColor: `${category?.color}20` }}
@@ -352,6 +397,27 @@ export default function ExpenseOverviewPage() {
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
             />
+
+            {/* Export Modal */}
+            <ExportModal
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+            />
+
+            {/* Bulk Selection Toolbar */}
+            {bulkMode && (
+                <BulkSelectionMode
+                    expenseIds={filteredAndSortedExpenses.map(e => e.id)}
+                    onDelete={(ids) => {
+                        ids.forEach(id => deleteExpense(id));
+                        selection.clearSelection();
+                    }}
+                    onCancel={() => {
+                        setBulkMode(false);
+                        selection.clearSelection();
+                    }}
+                />
+            )}
         </div>
     );
 }
