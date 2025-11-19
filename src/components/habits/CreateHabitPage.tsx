@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHabits } from '../../contexts/useHabits';
+import IconPicker from './IconPicker';
 
 function CreateHabitPage() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ function CreateHabitPage() {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('fitness_center'); // Default icon
   const [goal, setGoal] = useState(1);
+  const [showIconPicker, setShowIconPicker] = useState(false);
 
   const handleCreateHabit = () => {
     if (name.trim()) {
@@ -52,18 +54,23 @@ function CreateHabitPage() {
             />
           </div>
 
-          {/* Habit Icon (simple text input for now) */}
+          {/* Habit Icon Picker */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="habit-icon" className="text-sm font-medium">Icon Name (Material Symbols)</label>
-            <input
-              id="habit-icon"
-              type="text"
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              placeholder="e.g., fitness_center, book"
-              className="rounded-lg border border-border-light bg-card-light p-3 text-text-light-primary dark:border-border-dark dark:bg-card-dark dark:text-text-dark-primary"
-            />
-            <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Find icons at <a href="https://fonts.google.com/icons" target="_blank" rel="noopener noreferrer" className="text-primary">Material Symbols</a></p>
+            <label className="text-sm font-medium">Icon</label>
+            <button
+              type="button"
+              onClick={() => setShowIconPicker(true)}
+              className="flex items-center gap-3 rounded-lg border border-border-light bg-card-light p-3 text-left hover:bg-slate-100 dark:border-border-dark dark:bg-card-dark dark:hover:bg-slate-800 transition-colors"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <span className="material-symbols-outlined text-2xl">{icon}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-text-light-primary dark:text-text-dark-primary">Selected Icon</p>
+                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Tap to change</p>
+              </div>
+              <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark">chevron_right</span>
+            </button>
           </div>
 
           {/* Habit Goal (e.g., times per week) */}
@@ -90,6 +97,15 @@ function CreateHabitPage() {
           Create Habit
         </button>
       </div>
+
+      {/* Icon Picker Modal */}
+      {showIconPicker && (
+        <IconPicker
+          selectedIcon={icon}
+          onSelect={setIcon}
+          onClose={() => setShowIconPicker(false)}
+        />
+      )}
     </div>
   );
 }

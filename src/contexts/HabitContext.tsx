@@ -44,6 +44,33 @@ const calculateStreak = (completedDates: string[]): number => {
   return streak;
 };
 
+const calculateBestStreak = (completedDates: string[]): number => {
+  if (!completedDates.length) return 0;
+
+  const sortedDates = [...completedDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+  let bestStreak = 1;
+  let currentStreak = 1;
+
+  for (let i = 1; i < sortedDates.length; i++) {
+    const prevDate = new Date(sortedDates[i - 1]);
+    const currDate = new Date(sortedDates[i]);
+
+    // Calculate the difference in days
+    const diffTime = currDate.getTime() - prevDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      currentStreak++;
+      bestStreak = Math.max(bestStreak, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  return bestStreak;
+};
+
 // --- MOCK DATA ---
 const MOCK_HABITS: Habit[] = [
   {
@@ -147,6 +174,7 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     deleteHabit,
     getHabit,
     calculateStreak, // Expose helper
+    calculateBestStreak, // Expose helper
     getTodayString, // Expose helper
   };
 

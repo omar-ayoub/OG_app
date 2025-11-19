@@ -1,9 +1,25 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useHabits } from '../../contexts/useHabits';
 import BottomNavBar from '../layout/BottomNavBar';
 
 function HabitOverviewPage() {
   const { habits, toggleHabitCompletion, calculateStreak, getTodayString } = useHabits();
+  const [completedHabits, setCompletedHabits] = useState<Set<number>>(new Set());
+
+  const handleToggle = (habitId: number) => {
+    toggleHabitCompletion(habitId);
+
+    // Add pulse animation
+    setCompletedHabits(prev => new Set(prev).add(habitId));
+    setTimeout(() => {
+      setCompletedHabits(prev => {
+        const next = new Set(prev);
+        next.delete(habitId);
+        return next;
+      });
+    }, 600);
+  };
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -33,6 +49,7 @@ function HabitOverviewPage() {
               // Or better: if frequency is weekly, calculate based on this week's completions.
               // For now, let's stick to daily logic:
               const progress = isCompletedToday ? 100 : 0;
+              const isAnimating = completedHabits.has(habit.id);
 
               return (
                 <Link to={`/habit-details/${habit.id}`} key={habit.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -47,10 +64,13 @@ function HabitOverviewPage() {
                       </div>
                     </div>
                     <button
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${isCompletedToday ? 'border-primary bg-primary text-white' : 'border-slate-300 bg-transparent text-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-500 dark:hover:bg-slate-800'}`}
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all ${isCompletedToday
+                          ? 'border-primary bg-primary text-white'
+                          : 'border-slate-300 bg-transparent text-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-500 dark:hover:bg-slate-800'
+                        } ${isAnimating ? 'animate-confetti' : ''}`}
                       onClick={(e) => {
                         e.preventDefault();
-                        toggleHabitCompletion(habit.id);
+                        handleToggle(habit.id);
                       }}
                     >
                       <span className="material-symbols-outlined text-lg">check</span>
@@ -62,7 +82,7 @@ function HabitOverviewPage() {
                       <span>{progress}%</span>
                     </div>
                     <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                      <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }}></div>
+                      <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }}></div>
                     </div>
                   </div>
                 </Link>

@@ -10,6 +10,7 @@ interface HabitContextType {
   deleteHabit: (habitId: number) => void;
   getHabit: (habitId: number) => Habit | undefined;
   calculateStreak: (completedDates: string[]) => number;
+  calculateBestStreak: (completedDates: string[]) => number;
   getTodayString: () => string;
 }
 
