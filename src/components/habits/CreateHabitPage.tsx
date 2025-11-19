@@ -16,10 +16,9 @@ function CreateHabitPage() {
         id: Date.now(),
         name,
         icon,
-        streak: 0,
+        completedDates: [],
+        frequency: 'daily',
         goal,
-        completedToday: false,
-        progress: 0,
         taskIds: [],
       });
       navigate('/habits');

@@ -41,10 +41,9 @@ export interface Habit {
   id: number;
   name: string;
   icon: string;
-  streak: number;
-  goal: number;
-  completedToday: boolean;
-  progress: number;
+  completedDates: string[]; // ISO date strings (YYYY-MM-DD)
+  frequency: 'daily' | 'weekly';
+  goal: number; // Target completions per frequency period
   taskIds?: number[];
 }
 

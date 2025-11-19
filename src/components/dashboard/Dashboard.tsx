@@ -9,7 +9,7 @@ import BottomNavBar from '../layout/BottomNavBar';
 function Dashboard() {
   const { tasks, toggleTaskCompletion, toggleSubTaskCompletion, deleteTask } = useTasks();
   const { goals } = useGoals();
-  const { habits } = useHabits();
+  const { habits, calculateStreak } = useHabits();
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'Dashboard' | 'Tomorrow' | 'Week'>('Dashboard');
@@ -108,7 +108,7 @@ function Dashboard() {
               <span className="material-symbols-outlined">{habit.icon}</span>
             </div>
             <p className="text-sm font-semibold text-text-light-primary dark:text-text-dark-primary mt-2 text-center">{habit.name}</p>
-            <p className="text-xs font-medium text-amber-500">🔥 {habit.streak} days</p>
+            <p className="text-xs font-medium text-amber-500">🔥 {calculateStreak(habit.completedDates)} days</p>
           </Link>
         ))}
       </div>

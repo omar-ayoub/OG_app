@@ -3,7 +3,7 @@ import { useHabits } from '../../contexts/useHabits';
 import BottomNavBar from '../layout/BottomNavBar';
 
 function HabitOverviewPage() {
-  const { habits, toggleHabitCompletion } = useHabits();
+  const { habits, toggleHabitCompletion, calculateStreak, getTodayString } = useHabits();
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -26,39 +26,48 @@ function HabitOverviewPage() {
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Tap the '+' button to begin your journey.</p>
             </div>
           ) : (
-            habits.map((habit) => (
-              <Link to={`/habit-details/${habit.id}`} key={habit.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <span className="material-symbols-outlined">{habit.icon}</span>
+            habits.map((habit) => {
+              const streak = calculateStreak(habit.completedDates);
+              const isCompletedToday = habit.completedDates.includes(getTodayString());
+              // Simple progress calculation: completed today = 100%, else 0% (for daily habits)
+              // Or better: if frequency is weekly, calculate based on this week's completions.
+              // For now, let's stick to daily logic:
+              const progress = isCompletedToday ? 100 : 0;
+
+              return (
+                <Link to={`/habit-details/${habit.id}`} key={habit.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined">{habit.icon}</span>
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-slate-800 dark:text-slate-200">{habit.name}</p>
+                        <p className="text-sm font-medium text-amber-500">🔥 {streak} days</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-base font-semibold text-slate-800 dark:text-slate-200">{habit.name}</p>
-                      <p className="text-sm font-medium text-amber-500">🔥 {habit.streak} days</p>
+                    <button
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${isCompletedToday ? 'border-primary bg-primary text-white' : 'border-slate-300 bg-transparent text-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-500 dark:hover:bg-slate-800'}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleHabitCompletion(habit.id);
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-lg">check</span>
+                    </button>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+                      <span>Progress</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }}></div>
                     </div>
                   </div>
-                  <button
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${habit.completedToday ? 'border-primary bg-primary text-white' : 'border-slate-300 bg-transparent text-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-500 dark:hover:bg-slate-800'}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggleHabitCompletion(habit.id);
-                    }}
-                  >
-                    <span className="material-symbols-outlined text-lg">check</span>
-                  </button>
-                </div>
-                <div>
-                  <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <span>Progress</span>
-                    <span>{habit.progress}%</span>
-                  </div>
-                  <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${habit.progress}%` }}></div>
-                  </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              );
+            })
           )}
         </div>
       </main>

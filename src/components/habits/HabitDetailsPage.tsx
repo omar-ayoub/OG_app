@@ -4,7 +4,7 @@ import { useHabits } from '../../contexts/useHabits';
 function HabitDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { getHabit } = useHabits();
+  const { getHabit, calculateStreak, getTodayString } = useHabits();
 
   const habit = id ? getHabit(parseInt(id, 10)) : undefined;
 
@@ -27,18 +27,18 @@ function HabitDetailsPage() {
         <section className="grid grid-cols-3 gap-3 sm:gap-4">
           <div className="flex flex-col items-center justify-center gap-2 rounded-xl p-4 text-center bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark">
             <span className="material-symbols-outlined text-accent-orange text-3xl">local_fire_department</span>
-            <p className="text-text-primary-light dark:text-text-primary-dark text-2xl font-bold leading-tight">{habit.streak}</p>
+            <p className="text-text-primary-light dark:text-text-primary-dark text-2xl font-bold leading-tight">{calculateStreak(habit.completedDates)}</p>
             <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-normal">Current Streak</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-2 rounded-xl p-4 text-center bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark">
             <span className="material-symbols-outlined text-accent-green text-3xl">workspace_premium</span>
-            <p className="text-text-primary-light dark:text-text-primary-dark text-2xl font-bold leading-tight">{habit.streak + 10}</p> {/* Placeholder for best streak */}
+            <p className="text-text-primary-light dark:text-text-primary-dark text-2xl font-bold leading-tight">{calculateStreak(habit.completedDates)}</p> {/* TODO: Calculate Best Streak properly */}
             <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-normal">Best Streak</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-2 rounded-xl p-4 text-center bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark">
             <span className="material-symbols-outlined text-accent-blue text-3xl">check_circle</span>
-            <p className="text-text-primary-light dark:text-text-primary-dark text-2xl font-bold leading-tight">{habit.goal}</p> {/* Placeholder for completions */}
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-normal">Completions</p>
+            <p className="text-text-primary-light dark:text-text-primary-dark text-2xl font-bold leading-tight">{habit.completedDates.length}</p>
+            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-normal">Total Completions</p>
           </div>
         </section>
         <section className="flex flex-col rounded-xl bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-4">
@@ -46,41 +46,91 @@ function HabitDetailsPage() {
             <button className="flex size-10 items-center justify-center rounded-full text-text-secondary-light dark:text-text-secondary-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
               <span className="material-symbols-outlined text-xl">chevron_left</span>
             </button>
-            <p className="text-text-primary-light dark:text-text-primary-dark text-base font-semibold leading-tight text-center">October 2024</p>
+            <p className="text-text-primary-light dark:text-text-primary-dark text-base font-semibold leading-tight text-center">
+              {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+            </p>
             <button className="flex size-10 items-center justify-center rounded-full text-text-secondary-light dark:text-text-secondary-dark hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
               <span className="material-symbols-outlined text-xl">chevron_right</span>
             </button>
           </div>
           <div className="grid grid-cols-7 gap-y-1">
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">S</p>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">M</p>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">T</p>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">W</p>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">T</p>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">F</p>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">S</p>
-            {/* Calendar days - Placeholder */}
-            {[...Array(31)].map((_, i) => (
-              <div key={i} className="h-10 w-full text-text-primary-light dark:text-text-primary-dark text-sm font-medium leading-normal flex items-center justify-center">
-                <div className={`flex size-9 items-center justify-center rounded-full ${i % 5 === 0 ? 'bg-primary text-white' : ''}`}>{i + 1}</div>
-              </div>
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
+              <p key={day} className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">{day}</p>
             ))}
+
+            {/* Calendar Logic */}
+            {(() => {
+              const today = new Date();
+              const year = today.getFullYear();
+              const month = today.getMonth();
+              const daysInMonth = new Date(year, month + 1, 0).getDate();
+              const firstDayOfMonth = new Date(year, month, 1).getDay();
+
+              const days = [];
+              // Empty cells for days before start of month
+              for (let i = 0; i < firstDayOfMonth; i++) {
+                days.push(<div key={`empty-${i}`} className="h-10 w-full"></div>);
+              }
+
+              // Days of the month
+              for (let i = 1; i <= daysInMonth; i++) {
+                // Better date string construction to avoid timezone issues:
+                const d = new Date(year, month, i);
+                const localDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+                const isCompleted = habit.completedDates.includes(localDateStr);
+                const isToday = localDateStr === getTodayString();
+
+                days.push(
+                  <div key={i} className="h-10 w-full text-text-primary-light dark:text-text-primary-dark text-sm font-medium leading-normal flex items-center justify-center">
+                    <div className={`flex size-9 items-center justify-center rounded-full ${isCompleted ? 'bg-primary text-white' : isToday ? 'border border-primary text-primary' : ''}`}>
+                      {i}
+                    </div>
+                  </div>
+                );
+              }
+              return days;
+            })()}
           </div>
         </section>
         <section className="flex flex-col rounded-xl bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-4">
           <p className="text-text-primary-light dark:text-text-primary-dark text-base font-semibold leading-normal">Completions Over Time</p>
           <div className="flex items-baseline gap-2 pt-1">
-            <p className="text-text-primary-light dark:text-text-primary-dark tracking-light text-3xl font-bold leading-tight truncate">21</p>
+            <p className="text-text-primary-light dark:text-text-primary-dark tracking-light text-3xl font-bold leading-tight truncate">
+              {habit.completedDates.filter(d => {
+                const date = new Date(d);
+                const now = new Date();
+                return date >= new Date(now.setDate(now.getDate() - 30));
+              }).length}
+            </p>
             <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm font-medium leading-normal">in last 30 days</p>
           </div>
           <div className="flex min-h-[180px] flex-1 flex-col pt-4 -mx-2">
-            {/* Chart Placeholder */}
-            <div className="flex-1 flex items-center justify-center text-text-secondary-light dark:text-text-secondary-dark">
-              [Chart Placeholder]
-            </div>
-            <div className="flex justify-between px-2 pt-2">
-              <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-normal">Sep</p>
-              <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium leading-normal">Oct</p>
+            {/* Simple Bar Chart */}
+            <div className="flex-1 flex items-end justify-between px-4 gap-2 h-32">
+              {(() => {
+                const months = [];
+                for (let i = 5; i >= 0; i--) {
+                  const d = new Date();
+                  d.setMonth(d.getMonth() - i);
+                  const monthName = d.toLocaleString('default', { month: 'short' });
+                  const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+                  const count = habit.completedDates.filter(date => date.startsWith(monthKey)).length;
+                  // Max height based on daily goal (approx 30)
+                  const height = Math.min((count / 30) * 100, 100);
+
+                  months.push(
+                    <div key={i} className="flex flex-col items-center gap-2 flex-1">
+                      <div className="w-full bg-primary/20 rounded-t-sm relative h-full flex items-end">
+                        <div style={{ height: `${height}%` }} className="w-full bg-primary rounded-t-sm transition-all duration-500"></div>
+                      </div>
+                      <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">{monthName}</span>
+                    </div>
+                  );
+                }
+                return months;
+              })()}
             </div>
           </div>
         </section>
