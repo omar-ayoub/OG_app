@@ -56,10 +56,10 @@ function CreateTaskPage() {
     const from = location.state?.from;
     const goalData = location.state?.goalData;
 
-    if (from === `/goal-details/${goalData.id}`) {
+    if (from && goalData && from === `/goal-details/${goalData.id}`) {
       const updatedGoalTasks = [...(goalData.tasks || []), newTaskId];
       navigate(from, { state: { goalData: { ...goalData, tasks: updatedGoalTasks } } });
-    } else if (from === '/create-goal') {
+    } else if (from === '/create-goal' && goalData) {
       navigate(from, { state: { newTaskId, goalData } });
     } else {
       navigate('/');

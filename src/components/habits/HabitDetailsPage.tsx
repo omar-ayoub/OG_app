@@ -99,8 +99,8 @@ function HabitDetailsPage() {
             </button>
           </div>
           <div className="grid grid-cols-7 gap-y-1">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-              <p key={day} className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">{day}</p>
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+              <p key={`${day}-${i}`} className="text-text-secondary-light dark:text-text-secondary-dark text-xs font-bold leading-normal tracking-[0.015em] flex h-10 w-full items-center justify-center">{day}</p>
             ))}
 
 

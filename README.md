@@ -4,7 +4,7 @@ A modern, mobile-first Progressive Web App (PWA) for personal organization built
 
 > **Owner**: Omar  
 > **Target Device**: Android (Xiaomi 10T Pro)  
-> **Last Updated**: November 18, 2025
+> **Last Updated**: November 19, 2025
 
 ---
 
@@ -24,7 +24,7 @@ A modern, mobile-first Progressive Web App (PWA) for personal organization built
 
 ## 🎯 Overview
 
-The Organizer App is a comprehensive personal productivity tool that helps users manage their daily tasks, track long-term goals, and build positive habits. Built with a mobile-first approach, it provides a clean, intuitive interface optimized for Android devices while maintaining full PWA capabilities for offline use and home screen installation.
+The Organizer App is a comprehensive personal productivity tool that helps users manage their daily tasks, track long-term goals, build positive habits, and manage personal finances. Built with a mobile-first approach, it provides a clean, intuitive interface optimized for Android devices while maintaining full PWA capabilities for offline use and home screen installation.
 
 ---
 
@@ -40,6 +40,8 @@ The Organizer App is a comprehensive personal productivity tool that helps users
 | **State Management** | React Context API | - |
 | **PWA** | vite-plugin-pwa | 1.1.0 |
 | **Platform** | Progressive Web App | - |
+| **Charts** | Recharts | Latest |
+| **PDF Generation** | jsPDF | Latest |
 
 ### Development Environment
 - **IDE**: VSCode on Windows
@@ -64,43 +66,35 @@ OG_app/
 │   │   │   └── EditTaskPage.tsx
 │   │   ├── goals/              # Goal management
 │   │   │   ├── CreateGoalPage.tsx
-│   │   │   ├── GoalDetailsPage.tsx
-│   │   │   └── GoalOverviewPage.tsx
+│   │   │   └── GoalDetailsPage.tsx
 │   │   ├── habits/             # Habit tracking
 │   │   │   ├── HabitOverviewPage.tsx
 │   │   │   ├── HabitDetailsPage.tsx
-│   │   │   └── CreateHabitPage.tsx
+│   │   │   ├── CreateHabitPage.tsx
+│   │   │   └── IconPicker.tsx
+│   │   ├── expenses/           # Expense tracking (NEW)
+│   │   │   ├── ExpenseOverviewPage.tsx
+│   │   │   ├── AddExpenseModal.tsx
+│   │   │   ├── RecurringExpensesPage.tsx
+│   │   │   ├── AnalyticsPage.tsx
+│   │   │   ├── BudgetManagementPage.tsx
+│   │   │   └── SpendingInsights.tsx
 │   │   ├── planner/            # Calendar/planner view
 │   │   │   └── PlannerPage.tsx
 │   │   └── layout/             # Layout components
 │   │       └── BottomNavBar.tsx
 │   ├── contexts/               # React Context providers
 │   │   ├── TaskContext.tsx
-│   │   ├── TaskProvider.tsx
-│   │   ├── useTasks.ts
 │   │   ├── GoalContext.tsx
-│   │   ├── GoalProvider.tsx
-│   │   ├── useGoals.ts
 │   │   ├── HabitContext.tsx
-│   │   ├── HabitProvider.tsx
-│   │   └── useHabits.ts
+│   │   └── ExpenseContext.tsx
 │   ├── types/                  # TypeScript type definitions
 │   │   └── index.ts
 │   ├── App.tsx                 # Main app component with routing
 │   ├── main.tsx                # Application entry point
 │   └── index.css               # Global styles + design system
 ├── dist/                       # Production build output
-├── node_modules/               # Dependencies
-├── .gitignore
-├── eslint.config.js            # ESLint configuration
-├── index.html                  # HTML entry point
-├── package.json                # Project dependencies
-├── postcss.config.js           # PostCSS configuration
-├── tailwind.config.js          # Tailwind CSS configuration
-├── tsconfig.json               # TypeScript configuration
-├── vite.config.ts              # Vite build configuration
-├── plan.txt                    # Project progress tracker
-├── GEMINI.md                   # Project context documentation
+├── ...config files
 └── README.md                   # This file
 ```
 
@@ -111,6 +105,7 @@ Components are organized by **feature** rather than type:
 - `tasks/` - All task-related pages (create, edit)
 - `goals/` - Goal management pages
 - `habits/` - Habit tracking pages
+- `expenses/` - Expense tracking and analytics
 - `planner/` - Calendar and planning views
 - `layout/` - Shared layout components (navigation, etc.)
 
@@ -147,24 +142,35 @@ Components are organized by **feature** rather than type:
 - Direct task creation from goal page
 - Mark entire goals as complete/incomplete
 
-#### 🔄 Habit Management
-- Habit creation with icons and descriptions
-- Streak tracking (consecutive days)
-- Habit overview page
-- Habit details page with history
-- Visual habit cards on dashboard
+#### 🔄 Habit Management (Major Update)
+- **Tracking**: Date-based completion tracking with history
+- **Streaks**: Current and Best streak calculation
+- **Analytics**: Monthly completion rates and dynamic bar charts
+- **Calendar**: Interactive monthly calendar view with navigation
+- **UX**: Confetti animations on completion, Icon Picker with search
+- **Visuals**: Premium UI with smooth transitions and gradient charts
+
+#### 💰 Expense Tracking (New Module)
+- **Transaction Management**: Add, edit, delete expenses
+- **Recurring Expenses**: Support for daily, weekly, monthly, yearly subscriptions
+- **Budgeting**: Set and track monthly budgets per category
+- **Analytics**: Spending insights with pie charts and trend analysis
+- **Bulk Actions**: Select multiple expenses to delete or export
+- **Export**: Export data to CSV or PDF formats
+- **Categories**: Custom category management with icons and colors
+- **Payment Methods**: Track spending by payment source (Cash, Card, etc.)
 
 #### 📅 Planner
 - Timeline view of tasks
 - Display tasks with unfinished subtasks
 - Integration with task filtering
 
-#### 🎨 Design System (Recently Implemented)
+#### 🎨 Design System
 - **Centralized Component Classes**: Reusable UI components defined in `index.css`
 - **Design Tokens**: Colors, shadows, transitions in Tailwind config
 - **Dark Mode**: Full dark mode support across all pages
 - **Responsive**: Mobile-first, optimized for Android
-- **Consistent Styling**: Single source of truth for all UI elements
+- **Animations**: Slide-up modals, confetti effects, smooth transitions
 
 ---
 
@@ -203,6 +209,7 @@ Located in [`src/index.css`](./src/index.css):
 .btn-ghost        /* Text-only buttons */
 .btn-danger       /* Destructive actions */
 .btn-fab          /* Floating action button */
+.btn-icon         /* Icon-only buttons */
 ```
 
 #### Form Inputs
@@ -211,6 +218,7 @@ Located in [`src/index.css`](./src/index.css):
 .input-textarea   /* Textareas */
 .input-select     /* Dropdowns */
 .input-checkbox   /* Checkboxes */
+.input-wrapper    /* Inputs with icons */
 ```
 
 #### Cards & Layout
@@ -221,13 +229,13 @@ Located in [`src/index.css`](./src/index.css):
 .page-container            /* Full page wrapper */
 .app-bar                   /* Top app bar */
 .content-main              /* Main content area */
+.form-page                 /* Full screen form modal */
 ```
 
-#### Typography
+#### Animations
 ```css
-.heading-page      /* Page titles */
-.heading-section   /* Section headers */
-.text-secondary    /* Muted text */
+.animate-slide-up    /* Modal entrance */
+.animate-confetti    /* Celebration effect */
 ```
 
 ---
@@ -290,13 +298,16 @@ The app uses **React Context API** for state management:
 
 ```typescript
 // Task Context
-const { tasks, addTask, updateTask, deleteTask, toggleTaskCompletion } = useTasks();
+const { tasks, addTask, updateTask, deleteTask } = useTasks();
 
 // Goal Context
-const { goals, addGoal, updateGoal, deleteGoal } = useGoals();
+const { goals, addGoal, updateGoal } = useGoals();
 
 // Habit Context
-const { habits, addHabit, updateHabit, deleteHabit } = useHabits();
+const { habits, addHabit, toggleHabitCompletion, calculateStreak } = useHabits();
+
+// Expense Context
+const { expenses, addExpense, budgets, getSpendingByCategory } = useExpenses();
 ```
 
 ### Routing
@@ -313,15 +324,12 @@ Routes are defined in [`App.tsx`](./src/App.tsx):
 /create-habit        → Create Habit Page
 /habit-details/:id   → Habit Details Page
 /habits              → Habit Overview Page
+/expenses            → Expense Overview Page
+/expenses/recurring  → Recurring Expenses Page
+/expenses/analytics  → Expense Analytics Page
+/expenses/budget     → Budget Management Page
 /planner             → Planner Page
 ```
-
-### Code Style
-
-- **TypeScript**: All components use TypeScript with strict mode
-- **Functional Components**: Using React Hooks
-- **Tailwind CSS**: Utility-first CSS with custom component classes
-- **ESLint**: Code linting with React and TypeScript rules
 
 ---
 
@@ -361,9 +369,16 @@ import { Task, Goal } from './types';
 
 - [x] Project setup (React, Vite, Tailwind, PWA)
 - [x] Dashboard UI with bottom navigation
-- [x] Task management (CRUD, subtasks, categories)
+- [x] Task management (CRUD, subtasks, categories, repetitive)
 - [x] Goal management (creation, tracking, task linking)
-- [x] Habit management (creation, streak tracking)
+- [x] **Habit Management Overhaul**
+  - [x] Streak tracking & history
+  - [x] Calendar view & analytics
+  - [x] UI polish & animations
+- [x] **Expense Tracking Module**
+  - [x] Expense CRUD & Recurring expenses
+  - [x] Budgeting & Analytics
+  - [x] Export & Bulk actions
 - [x] Planner page with timeline view
 - [x] State management refactor (Context API)
 - [x] **Design system modularization**
@@ -371,23 +386,18 @@ import { Task, Goal } from './types';
   - [x] Created component class library in `index.css`
   - [x] Migrated components to use design system
   - [x] Production build verification
-- [x] **UI Bug Fixes** ⭐ NEW
-  - [x] Fixed bottom navigation spacing/overlap issues
-  - [x] Fixed horizontal card container clipping (Goals/Habits)
 
 ### 🎯 Next Steps
 
 #### Short Term
 - [ ] Migrate remaining detail pages to design system
-- [ ] Add calendar view integration
-- [ ] Implement habit tracking logic (check-in system)
 - [ ] Add notifications for task reminders
+- [ ] Refine search functionality across all modules
 
 #### Medium Term
-- [ ] Task/Goal/Habit relationship refinement
 - [ ] Data persistence (LocalStorage or Backend)
-- [ ] Export/Import functionality
-- [ ] Statistics and analytics dashboard
+- [ ] Import functionality (restore data)
+- [ ] Statistics and analytics dashboard (Global)
 
 #### Long Term
 - [ ] Backend integration (API)
@@ -399,15 +409,11 @@ import { Task, Goal } from './types';
 
 ## 🐛 Known Issues & Resolutions
 
-### Recently Fixed (November 18, 2025)
-- ✅ Bottom navigation spacing: Fixed overlap between navigation items
-- ✅ Horizontal card container clipping: Fixed habit and goal cards being cut off
-
-### Historical Issues
-All major issues have been resolved. See [`plan.txt`](./plan.txt) for historical debugging notes including:
-- Goal creation page input interactivity fixes
-- ESLint linter compliance improvements
-- React Fast Refresh compatibility
+### Recently Fixed (November 19, 2025)
+- ✅ **Duplicate Keys in Calendar**: Fixed React key warning in Habit calendar view.
+- ✅ **Task Creation Error**: Fixed undefined error when creating tasks linked to goals.
+- ✅ **Bottom navigation spacing**: Fixed overlap between navigation items.
+- ✅ **Horizontal card container clipping**: Fixed habit and goal cards being cut off.
 
 ---
 
@@ -431,6 +437,5 @@ This project is for personal use.
 
 ---
 
-**Last Build**: ✅ Production build successful (1.32s)  
-**Bundle Size**: 290.27 kB (83.55 kB gzipped)  
-**CSS Size**: 37.34 kB (5.87 kB gzipped)
+**Last Build**: ✅ Production build successful
+**Bundle Size**: Optimized for mobile performance
