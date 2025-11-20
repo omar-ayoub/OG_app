@@ -42,6 +42,8 @@ The Organizer App is a comprehensive personal productivity tool that helps users
 | **Platform** | Progressive Web App | - |
 | **Charts** | Recharts | Latest |
 | **PDF Generation** | jsPDF | Latest |
+| **Backend** | Node.js + Express | Latest |
+| **Database** | PostgreSQL | 15+ |
 
 ### Development Environment
 - **IDE**: VSCode on Windows
@@ -157,8 +159,14 @@ Components are organized by **feature** rather than type:
 - **Analytics**: Spending insights with pie charts and trend analysis
 - **Bulk Actions**: Select multiple expenses to delete or export
 - **Export**: Export data to CSV or PDF formats
-- **Categories**: Custom category management with icons and colors
 - **Payment Methods**: Track spending by payment source (Cash, Card, etc.)
+- **Categories**: Custom category management with icons and colors
+
+#### 🔌 Backend API (New)
+- **RESTful API**: Fully documented API endpoints for all modules
+- **PostgreSQL Database**: Robust relational database for data persistence
+- **Data Integrity**: Foreign keys, constraints, and transactions ensure data consistency
+- **Scalability**: Designed to handle growing data with indexes and optimized queries
 
 #### 📅 Planner
 - Timeline view of tasks
@@ -386,6 +394,10 @@ import { Task, Goal } from './types';
   - [x] Created component class library in `index.css`
   - [x] Migrated components to use design system
   - [x] Production build verification
+- [x] **Backend Implementation**
+  - [x] PostgreSQL database setup & schema
+  - [x] API endpoints for Tasks, Goals, Habits, Expenses
+  - [x] Comprehensive test coverage
 
 ### 🎯 Next Steps
 
@@ -437,6 +449,8 @@ This project is for personal use.
 
 - [`plan.txt`](./plan.txt) - Detailed project progress tracker
 - [`GEMINI.md`](./GEMINI.md) - Project context for development
+- [`backend/README.md`](./backend/README.md) - Backend API documentation
+- [`backend/DATABASE_SCHEMA.md`](./backend/DATABASE_SCHEMA.md) - Database Schema Reference
 - Design references in `Design_Guide.txt`, `reference_page.txt`, etc.
 
 ---
