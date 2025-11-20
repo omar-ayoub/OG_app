@@ -16,7 +16,7 @@ export default function AnalyticsPage() {
     // For this MVP, we'll map 'yearly' to a longer trend fetch or just use monthly for now as the context supports it.
     // Let's stick to what the context provides: 'daily' | 'weekly' | 'monthly'. 
     // We'll use 'monthly' as the default view which is most useful.
-    const expenses = getExpensesByPeriod(period === 'yearly' ? 'monthly' : period as any);
+    const expenses = getExpensesByPeriod(period === 'yearly' ? 'monthly' : period as 'daily' | 'weekly' | 'monthly');
 
     // --- Pie Chart Data Calculation ---
     const pieData = useMemo(() => {
@@ -132,8 +132,8 @@ export default function AnalyticsPage() {
                                 key={p}
                                 onClick={() => setPeriod(p)}
                                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${period === p
-                                        ? 'bg-white dark:bg-gray-700 shadow-sm text-primary'
-                                        : 'text-text-light-secondary dark:text-text-dark-secondary'
+                                    ? 'bg-white dark:bg-gray-700 shadow-sm text-primary'
+                                    : 'text-text-light-secondary dark:text-text-dark-secondary'
                                     }`}
                             >
                                 {p.charAt(0).toUpperCase() + p.slice(1)}

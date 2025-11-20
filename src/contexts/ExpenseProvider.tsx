@@ -159,11 +159,12 @@ export function ExpenseProvider({ children }: ExpenseProviderProps) {
         const end = new Date(date);
 
         switch (period) {
-            case 'daily':
+            case 'daily': {
                 start.setHours(0, 0, 0, 0);
                 end.setHours(23, 59, 59, 999);
                 break;
-            case 'weekly':
+            }
+            case 'weekly': {
                 const dayOfWeek = start.getDay();
                 const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday as start
                 start.setDate(start.getDate() - diff);
@@ -171,13 +172,15 @@ export function ExpenseProvider({ children }: ExpenseProviderProps) {
                 end.setDate(start.getDate() + 6);
                 end.setHours(23, 59, 59, 999);
                 break;
-            case 'monthly':
+            }
+            case 'monthly': {
                 start.setDate(1);
                 start.setHours(0, 0, 0, 0);
                 end.setMonth(end.getMonth() + 1);
                 end.setDate(0);
                 end.setHours(23, 59, 59, 999);
                 break;
+            }
         }
 
         return [start, end];

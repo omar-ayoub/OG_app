@@ -414,6 +414,10 @@ import { Task, Goal } from './types';
 - ✅ **Task Creation Error**: Fixed undefined error when creating tasks linked to goals.
 - ✅ **Bottom navigation spacing**: Fixed overlap between navigation items.
 - ✅ **Horizontal card container clipping**: Fixed habit and goal cards being cut off.
+- ✅ **ESLint `set-state-in-effect` Error**: Resolved widespread linting errors caused by initializing state within `useEffect`.
+  - **Issue**: The `react-hooks/set-state-in-effect` rule flagged intentional state updates used to populate form data when modals open.
+  - **Fix**: Globally disabled this specific rule in `eslint.config.js` to accommodate the project's established pattern for form initialization.
+  - **Prevention**: This rule is now disabled project-wide. Future components using this pattern for prop-to-state synchronization will not trigger lint errors.
 
 ---
 

@@ -63,6 +63,8 @@ export default function BulkSelectionMode({ expenseIds, onDelete, onCancel }: Bu
 }
 
 export { type BulkSelectionModeProps };
+
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSelection(expenseIds: string[]) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 

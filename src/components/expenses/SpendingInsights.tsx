@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useExpenses } from '../../contexts/useExpenses';
 
 export default function SpendingInsights() {
-    const { expenses, categories, budgets, getExpensesByPeriod } = useExpenses();
+    const { categories, budgets, getExpensesByPeriod } = useExpenses();
 
     const insights = useMemo(() => {
         const currentMonthExpenses = getExpensesByPeriod('monthly');
@@ -43,7 +43,7 @@ export default function SpendingInsights() {
             totalSpent,
             dailyAverage
         };
-    }, [expenses, categories, budgets, getExpensesByPeriod]);
+    }, [categories, budgets, getExpensesByPeriod]);
 
     if (!insights.totalSpent) return null;
 

@@ -196,7 +196,7 @@ export default function RecurringExpenseModal({ isOpen, onClose, editingExpense 
                             </div>
                             <select
                                 value={frequency}
-                                onChange={(e) => setFrequency(e.target.value as any)}
+                                onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly')}
                                 className="bg-transparent text-right font-medium focus:outline-none"
                             >
                                 <option value="daily">Daily</option>

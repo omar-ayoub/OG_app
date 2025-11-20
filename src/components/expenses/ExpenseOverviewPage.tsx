@@ -63,11 +63,12 @@ export default function ExpenseOverviewPage() {
                 case 'amount':
                     comparison = a.amount - b.amount;
                     break;
-                case 'category':
+                case 'category': {
                     const catA = categories.find(c => c.id === a.categoryId)?.name || '';
                     const catB = categories.find(c => c.id === b.categoryId)?.name || '';
                     comparison = catA.localeCompare(catB);
                     break;
+                }
             }
             return sortOrder === 'asc' ? comparison : -comparison;
         });
