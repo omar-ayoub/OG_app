@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTasks } from '../../contexts/useTasks';
 import BottomNavBar from '../layout/BottomNavBar';
 
@@ -144,6 +145,16 @@ function PlannerPage() {
         </div>
         <div className="h-24"></div> {/* Spacer for Bottom Nav */}
       </main>
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-20 right-6 z-10">
+        <Link
+          to="/create-task"
+          className="flex items-center justify-center size-16 bg-gradient-to-br from-[#4FD1C5] to-[#3B82F6] rounded-full shadow-lg text-white hover:scale-105 transition-transform"
+        >
+          <span className="material-symbols-outlined !text-4xl">add</span>
+        </Link>
+      </div>
 
       {/* Bottom Navigation Bar */}
       <BottomNavBar />

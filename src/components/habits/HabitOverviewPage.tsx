@@ -65,8 +65,8 @@ function HabitOverviewPage() {
                     </div>
                     <button
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all ${isCompletedToday
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-slate-300 bg-transparent text-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-500 dark:hover:bg-slate-800'
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-slate-300 bg-transparent text-slate-400 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-500 dark:hover:bg-slate-800'
                         } ${isAnimating ? 'animate-confetti' : ''}`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -92,10 +92,13 @@ function HabitOverviewPage() {
         </div>
       </main>
       {/* Floating Action Button */}
-      <div className="fixed bottom-24 right-6">
-        <button className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/40 transition-transform duration-200 ease-in-out hover:scale-105 active:scale-95">
-          <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>add</span>
-        </button>
+      <div className="fixed bottom-20 right-6 z-10">
+        <Link
+          to="/create-habit"
+          className="flex items-center justify-center size-16 bg-gradient-to-br from-[#4FD1C5] to-[#3B82F6] rounded-full shadow-lg text-white hover:scale-105 transition-transform"
+        >
+          <span className="material-symbols-outlined !text-4xl">add</span>
+        </Link>
       </div>
       <BottomNavBar />
     </div>

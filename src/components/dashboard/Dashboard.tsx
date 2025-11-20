@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTasks } from '../../contexts/useTasks';
@@ -14,7 +13,7 @@ function Dashboard() {
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'Dashboard' | 'Tomorrow' | 'Week'>('Dashboard');
 
-  if (!tasks || !goals || !habits) { // Check for goals and habits as well
+  if (!tasks || !goals || !habits) {
     return <div>Loading...</div>;
   }
 
@@ -38,13 +37,12 @@ function Dashboard() {
     switch (selectedFilter) {
       case 'Dashboard':
         return tasks.filter(task => {
-          if (!task.startDate) return true; // Tasks without a start date are considered for 'Dashboard'
+          if (!task.startDate) return true;
           return task.startDate === todayString;
         });
       case 'Tomorrow':
         return tasks.filter(task => isTomorrow(task.startDate));
       case 'Week':
-        // Implement week filtering logic here if needed, for now return all tasks
         return tasks;
       default:
         return tasks;
@@ -183,7 +181,7 @@ function Dashboard() {
       </main>
 
       {/* Floating Action Button */}
-      <div className="absolute bottom-24 right-4 z-10">
+      <div className="fixed bottom-20 right-6 z-10">
         {isFabMenuOpen && (
           <div className="flex flex-col items-end gap-4 mb-4">
             <Link to="/create-task" className="card flex items-center gap-3 shadow-lg">
@@ -200,8 +198,11 @@ function Dashboard() {
             </Link>
           </div>
         )}
-        <button onClick={() => setIsFabMenuOpen(!isFabMenuOpen)} className="btn-fab">
-          <span className="material-symbols-outlined !text-3xl">{isFabMenuOpen ? 'close' : 'add'}</span>
+        <button
+          onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
+          className="flex items-center justify-center size-16 bg-gradient-to-br from-[#4FD1C5] to-[#3B82F6] rounded-full shadow-lg text-white hover:scale-105 transition-transform"
+        >
+          <span className="material-symbols-outlined !text-4xl">{isFabMenuOpen ? 'close' : 'add'}</span>
         </button>
       </div>
 
