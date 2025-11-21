@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Security - DO NOT COMMIT
+GITHUB_SECRETS.txt
