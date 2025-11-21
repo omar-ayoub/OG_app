@@ -27,10 +27,21 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Fetch tasks on mount
+  const loadCategories = useCallback(async () => {
+    try {
+      const fetchedCategories = await api.tasks.getCategories();
+      setCategories(fetchedCategories);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+      // Keep default categories if API fails
+    }
+  }, []);
+
+  // Fetch tasks and categories on mount
   useEffect(() => {
     loadTasks();
-  }, [loadTasks]);
+    loadCategories();
+  }, [loadTasks, loadCategories]);
 
   const toggleTaskCompletion = async (id: number) => {
     // Optimistic update

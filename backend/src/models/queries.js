@@ -234,6 +234,12 @@ export const taskQueries = {
       ORDER BY t.start_date, t.time
     `, [startDate, endDate]);
     return result.rows;
+  },
+
+  // Get all task categories
+  getAllCategories: async () => {
+    const result = await pool.query('SELECT * FROM task_categories ORDER BY name');
+    return result.rows;
   }
 };
 

@@ -1,5 +1,5 @@
 // src/contexts/GoalContext.tsx
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Goal } from '../types';
 import { GoalContext } from './GoalContextDefinition';
 import { api } from '../services/api';

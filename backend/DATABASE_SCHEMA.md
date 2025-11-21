@@ -7,6 +7,7 @@ This document serves as the single source of truth for the Organizer App's Postg
 - **Database Name**: `organizer` (default)
 - **Schema**: `public`
 - **RDBMS**: PostgreSQL 15+
+- **Production Port**: 5435 (External), 5432 (Internal)
 
 ## Entity Relationship Diagram (ERD)
 

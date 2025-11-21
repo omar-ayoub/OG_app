@@ -122,6 +122,18 @@ npm run dev
 - [x] Habits Module API
 - [x] Expenses Module API
 - [x] Frontend Integration
+- [x] Deployment (Standalone Docker)
+
+## 🚢 Production
+
+The backend is containerized using Docker.
+
+```bash
+# Build and run with Docker Compose
+docker-compose -f organizer-docker-compose.yml up -d --build
+```
+
+See `DEPLOYMENT.md` in the root directory for full deployment instructions.
 
 
 ## 👤 Author

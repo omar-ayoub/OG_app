@@ -1,5 +1,5 @@
 // src/components/CreateTaskPage.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTasks } from '../../contexts/useTasks';
 import type { SubTask } from '../../types';
@@ -13,13 +13,20 @@ function CreateTaskPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState(''); // New state for endDate
   const [time, setTime] = useState('');
-  const [tag, setTag] = useState(categories[0]?.name || '');
+  const [tag, setTag] = useState('');
   const [description, setDescription] = useState('');
   const [subTasks, setSubTasks] = useState<SubTask[]>([]);
   const [newSubTaskText, setNewSubTaskText] = useState('');
   const [isRepetitive, setIsRepetitive] = useState(false);
   const [repeatFrequency, setRepeatFrequency] = useState<'daily' | 'weekly' | 'monthly' | undefined>(undefined);
   const [habitId] = useState<number | undefined>(undefined);
+
+  // Set default category when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0 && !tag) {
+      setTag(categories[0].name);
+    }
+  }, [categories, tag]);
 
   const handleAddSubTask = () => {
     if (newSubTaskText.trim()) {

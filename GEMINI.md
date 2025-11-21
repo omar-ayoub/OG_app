@@ -51,3 +51,14 @@ The following scripts are available in `package.json`:
 *   **Typing:** TypeScript is used for static typing. Type definitions are co-located with the components or defined in relevant files.
 *   **Linting:** ESLint is configured to enforce code quality and consistency. The configuration is in `eslint.config.js`.
 *   **PWA:** The application is configured as a Progressive Web App using `vite-plugin-pwa`. The manifest and service worker settings are in `vite.config.ts`.
+
+## Deployment
+
+The application is deployed on a VPS using a standalone Docker setup, separate from the main production stack.
+
+*   **Method:** Docker Compose (Standalone)
+*   **Configuration:** `organizer-docker-compose.yml`
+*   **Frontend:** `http://46.202.189.243:8080`
+*   **Backend:** `http://46.202.189.243:3000`
+*   **Database:** PostgreSQL 15 (Port 5435)
+*   **Documentation:** See `DEPLOYMENT.md` for full details.

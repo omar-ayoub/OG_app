@@ -1,6 +1,6 @@
 import type { Task, Goal, Habit, Expense, ExpenseCategory, Budget, RecurringExpense, SubTask } from '../types';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = '/api';
 
 // Helper to convert snake_case to camelCase
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,6 +64,7 @@ export const api = {
     tasks: {
         getAll: () => fetchApi('/tasks'),
         getById: (id: number) => fetchApi(`/tasks/${id}`),
+        getCategories: () => fetchApi('/tasks/categories'),
         create: (data: Partial<Task>) => fetchApi('/tasks', {
             method: 'POST',
             body: JSON.stringify(toSnakeCase(data)),

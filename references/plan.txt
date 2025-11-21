@@ -68,6 +68,13 @@ The application's state management for tasks and categories has been refactored 
 - Habit Details Page: Implemented `HabitDetailsPage.tsx` to show detailed information for a selected habit.
 - Navigation Integration: Added routes for habit pages in `App.tsx` and updated the bottom navigation bar in `Dashboard.tsx` to link to the `HabitOverviewPage`.
 
+✅ Deployment (Completed)
+- Standalone Docker Setup: Created a dedicated `organizer-docker-compose.yml` for deploying the app independently of other services on the VPS.
+- Database Configuration: Configured a separate PostgreSQL instance on port 5435 to avoid conflicts.
+- Deployment Scripts: Created `deploy.ps1` (PowerShell) and `deploy.sh` (Bash) for automated deployment.
+- Documentation: Created comprehensive `DEPLOYMENT.md` guide.
+- Verification: Successfully deployed to VPS and verified frontend/backend connectivity.
+
 🎯 Next Steps
 - Establish relationships and linking mechanisms between Tasks, Goals, and Habits.
 - Plan future features (e.g., calendar view, habit tracking logic).

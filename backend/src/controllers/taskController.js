@@ -101,3 +101,10 @@ export const deleteSubtask = asyncHandler(async (req, res) => {
 
     res.json({ message: 'Subtask deleted successfully', subtask });
 });
+
+// Get all task categories
+export const getAllCategories = asyncHandler(async (req, res) => {
+    const categories = await taskQueries.getAllCategories();
+    res.json(categories);
+});
+

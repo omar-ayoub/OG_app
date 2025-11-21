@@ -9,13 +9,15 @@ import {
     getTasksByDateRange,
     addSubtask,
     updateSubtask,
-    deleteSubtask
+    deleteSubtask,
+    getAllCategories
 } from '../controllers/taskController.js';
 
 const router = express.Router();
 
 // Task routes
 router.get('/', getAllTasks);
+router.get('/categories', getAllCategories);
 router.get('/by-date-range', getTasksByDateRange);
 router.get('/goal/:goalId', getTasksByGoalId);
 router.get('/:id', getTaskById);

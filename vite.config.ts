@@ -8,22 +8,33 @@ export default defineConfig({
     react(),
     // Add the plugin here
     VitePWA({
-      registerType: 'autoUpdate', // <-- This handles the "stuck app" problem
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'My Organizer App',
+        name: 'Organizer App',
         short_name: 'Organizer',
-        description: 'My awesome organizer PWA',
+        description: 'Personal organization and productivity app',
         theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        orientation: 'portrait',
         icons: [
           {
-            src: 'pwa-192x192.png', // We will add this icon soon
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png', // We will add this icon soon
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }

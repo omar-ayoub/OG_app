@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Organizer App
+  organizer_postgres:
+    image: postgres:15
+    container_name: organizer_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: organizer
+      POSTGRES_USER: organizer_user
+      POSTGRES_PASSWORD: pG_oRgAnIzEr_sEcReT_123!
+    volumes:
+      - organizer_db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - organizer_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U organizer_user -d organizer" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Service
+  organizer_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: organizer_backend
+    restart: always
+    environment:
+      - DB_HOST=organizer_postgres
+      - DB_PORT=5432
+      - DB_NAME=organizer
+      - DB_USER=organizer_user
+      - DB_PASSWORD=pG_oRgAnIzEr_sEcReT_123!
+      - PORT=3000
+      - NODE_ENV=production
+      - FRONTEND_URL=http://46.202.189.243:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      organizer_postgres:
+        condition: service_healthy
+    networks:
+      - organizer_network
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Service (React + Nginx)
+  organizer_frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: organizer_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - organizer_backend
+    networks:
+      - organizer_network
+
+networks:
+  organizer_network:
+    driver: bridge
+
+volumes:
+  organizer_db_data:
+    driver: local

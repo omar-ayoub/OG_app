@@ -1,0 +1,252 @@
+services:
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    command:
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.mytlschallenge.acme.httpchallenge=true
+      - --certificatesresolvers.mytlschallenge.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.mytlschallenge.acme.email=${SSL_EMAIL}
+      - --certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json
+      - --log.level=INFO
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik-dashboard.rule=Host(`traefik.egudio.com`)
+      - traefik.http.routers.traefik-dashboard.entrypoints=websecure
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+      - traefik.http.routers.traefik-dashboard.tls.certresolver=mytlschallenge
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}
+      - traefik.http.routers.traefik-dashboard.middlewares=auth
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - traefik_data:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - web
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    environment:
+      - N8N_HOST=n8n.egudio.com
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.egudio.com/
+      - GENERIC_TIMEZONE=Africa/Cairo
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - N8N_PROXY_TRUST=true
+      - N8N_RUNNERS_ENABLED=true
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      - N8N_TEMPLATES_ENABLED=false
+      - N8N_ONBOARDING_FLOW_DISABLED=true
+      - N8N_TRUSTED_PROXIES=0.0.0.0/0
+      - N8N_ENCRYPTION_KEY=/MPY3AtLO1780OO5fTnjRg9XyC+Y1AbF
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=0
+      - QUEUE_BULL_REDIS_PASSWORD=${REDIS_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.n8n.rule=Host(`n8n.egudio.com`)
+      - traefik.http.routers.n8n.entrypoints=websecure
+      - traefik.http.routers.n8n.tls.certresolver=mytlschallenge
+      - traefik.http.services.n8n.loadbalancer.server.port=5678
+    restart: always
+    volumes:
+      - root_n8n_data:/home/node/.n8n
+      - ./backups:/files/backups
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - web
+  n8n_worker:
+    image: docker.n8n.io/n8nio/n8n
+    command: worker
+    environment:
+      - N8N_HOST=n8n.egudio.com
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.egudio.com/
+      - GENERIC_TIMEZONE=Africa/Cairo
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - N8N_PROXY_TRUST=true
+      - N8N_RUNNERS_ENABLED=true
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      - N8N_TEMPLATES_ENABLED=false
+      - N8N_ONBOARDING_FLOW_DISABLED=true
+      - N8N_TRUSTED_PROXIES=0.0.0.0/0
+      - N8N_ENCRYPTION_KEY=/MPY3AtLO1780OO5fTnjRg9XyC+Y1AbF
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=0
+      - QUEUE_BULL_REDIS_PASSWORD=${REDIS_PASSWORD}
+    deploy:
+      replicas: 2
+    restart: always
+    volumes:
+      - root_n8n_data:/home/node/.n8n
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - web
+  postgres:
+    image: postgres:15
+    container_name: postgres_n8n
+    environment:
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=n8n
+    restart: always
+    volumes:
+      - postgres_n8n_data:/var/lib/postgresql/data
+    networks:
+      - web
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --save 60 1 --requirepass ${REDIS_PASSWORD}
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - web
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - web
+  node-exporter:
+    image: prom/node-exporter:latest
+    pid: host
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/rootfs
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    # web:
+    #   ipv4_address: 172.23.0.100
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - web
+  wordpress:
+    image: wordpress:6.5-apache
+    container_name: wordpress
+    environment:
+      - WP_HOME=${WP_HOME}
+      - WP_SITEURL=${WP_SITEURL}
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
+      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+      - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
+      - PHP_UPLOAD_MAX_FILESIZE=${PHP_UPLOAD_MAX_FILESIZE}
+      - PHP_POST_MAX_SIZE=${PHP_POST_MAX_SIZE}
+      - PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wordpress.rule=Host(`wordpress.egudio.com`)
+      - traefik.http.routers.wordpress.entrypoints=websecure
+      - traefik.http.routers.wordpress.tls.certresolver=mytlschallenge
+      - traefik.http.services.wordpress.loadbalancer.server.port=80
+    restart: always
+    volumes:
+      - wordpress_wp_data:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    depends_on:
+      - db
+    networks:
+      - web
+  db:
+    image: mariadb:10.11
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${WORDPRESS_DB_NAME}
+      - MYSQL_USER=${WORDPRESS_DB_USER}
+      - MYSQL_PASSWORD=${WORDPRESS_DB_PASSWORD}
+    restart: always
+    volumes:
+      - wordpress_db_data:/var/lib/mysql
+    networks:
+      - web
+  backend:
+    build: ./backend
+    container_name: backend
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=organizer
+      - DB_USER=organizer_user
+      - DB_PASSWORD=pG_oRgAnIzEr_sEcReT_123!
+      - PORT=3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend.rule=Host(`tasks.egudio.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.backend.entrypoints=websecure
+      - traefik.http.routers.backend.tls.certresolver=mytlschallenge
+      - traefik.http.services.backend.loadbalancer.server.port=3000
+    restart: always
+    networks:
+      - web
+    depends_on:
+      - postgres
+
+  tasksapp:
+    build: ./tasksapp
+    container_name: tasksapp
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tasksapp.rule=Host(`tasks.egudio.com`)
+      - traefik.http.routers.tasksapp.entrypoints=websecure
+      - traefik.http.routers.tasksapp.tls.certresolver=mytlschallenge
+      - traefik.http.services.tasksapp.loadbalancer.server.port=80
+    restart: always
+    networks:
+      - web
+networks:
+  web:
+volumes:
+  traefik_data:
+  root_n8n_data:
+    external: true
+  wordpress_wp_data:
+    external: true
+  wordpress_db_data:
+    external: true
+  flowise_data:
+    external: true
+  postgres_n8n_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
