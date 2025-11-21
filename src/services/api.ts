@@ -11,7 +11,7 @@ const toCamelCase = (obj: any): any => {
         return Object.keys(obj).reduce(
             (result, key) => {
                 const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
                 result[camelKey] = toCamelCase(obj[key]);
                 return result;
             },
@@ -30,7 +30,7 @@ const toSnakeCase = (obj: any): any => {
         return Object.keys(obj).reduce(
             (result, key) => {
                 const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
                 result[snakeKey] = toSnakeCase(obj[key]);
                 return result;
             },

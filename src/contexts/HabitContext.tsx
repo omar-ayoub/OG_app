@@ -72,18 +72,18 @@ const calculateBestStreak = (completedDates: string[]): number => {
 export function HabitProvider({ children }: { children: ReactNode }) {
   const [habits, setHabits] = useState<Habit[]>([]);
 
-  useEffect(() => {
-    loadHabits();
-  }, []);
-
-  const loadHabits = async () => {
+  const loadHabits = useCallback(async () => {
     try {
       const fetchedHabits = await api.habits.getAll();
       setHabits(fetchedHabits);
     } catch (error) {
       console.error('Failed to load habits:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadHabits();
+  }, [loadHabits]);
 
   const toggleHabitCompletion = async (id: number) => {
     const today = getTodayString();

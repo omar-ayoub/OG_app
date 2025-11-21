@@ -57,6 +57,7 @@ For a detailed reference of the database schema, including tables, relationships
 - `GET /api/expenses/categories/all`: Get all categories
 - `POST /api/expenses/budgets`: Set a budget
 - `POST /api/expenses/recurring`: Create recurring expense
+- `GET /api/expenses/payment-methods/all`: Get all payment methods
 
 ## 🧪 Testing
 
@@ -120,7 +121,8 @@ npm run dev
 - [x] Goals Module API
 - [x] Habits Module API
 - [x] Expenses Module API
-- [ ] Frontend Integration (Next Step)
+- [x] Frontend Integration
+
 
 ## 👤 Author
 
