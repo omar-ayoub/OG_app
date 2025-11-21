@@ -2,155 +2,218 @@
 import { type ReactNode, useState, useEffect } from 'react';
 import ExpenseContext, { type ExpenseContextType } from './ExpenseContext';
 import { type Expense, type ExpenseCategory, type PaymentMethod, type RecurringExpense, type Budget, type ExpensePeriod } from '../types';
+import { api } from '../services/api';
 
 interface ExpenseProviderProps {
     children: ReactNode;
 }
-
-// Default payment methods
-const DEFAULT_PAYMENT_METHODS: PaymentMethod[] = [
-    { id: '1', name: 'Cash', icon: 'payments' },
-    { id: '2', name: 'Credit Card', icon: 'credit_card' },
-    { id: '3', name: 'Debit Card', icon: 'credit_card' },
-    { id: '4', name: 'Digital Wallet', icon: 'account_balance_wallet' },
-];
 
 export function ExpenseProvider({ children }: ExpenseProviderProps) {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [categories, setCategories] = useState<ExpenseCategory[]>([]);
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [recurringExpenses, setRecurringExpenses] = useState<RecurringExpense[]>([]);
-    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(DEFAULT_PAYMENT_METHODS);
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
-    // Load data from localStorage on mount
+    // Load data on mount
     useEffect(() => {
-        setTimeout(() => {
-            const savedExpenses = localStorage.getItem('expenses');
-            const savedCategories = localStorage.getItem('expenseCategories');
-            const savedBudgets = localStorage.getItem('expenseBudgets');
-            const savedRecurring = localStorage.getItem('recurringExpenses');
-            const savedPaymentMethods = localStorage.getItem('paymentMethods');
-
-            if (savedExpenses) setExpenses(JSON.parse(savedExpenses));
-            if (savedCategories) setCategories(JSON.parse(savedCategories));
-            if (savedBudgets) setBudgets(JSON.parse(savedBudgets));
-            if (savedRecurring) setRecurringExpenses(JSON.parse(savedRecurring));
-            if (savedPaymentMethods) setPaymentMethods(JSON.parse(savedPaymentMethods));
-        }, 0);
+        loadData();
     }, []);
 
-    // Save to localStorage whenever data changes
-    useEffect(() => {
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-    }, [expenses]);
+    const loadData = async () => {
+        try {
+            const [
+                fetchedExpenses,
+                fetchedCategories,
+                fetchedBudgets,
+                fetchedRecurring,
+                fetchedPaymentMethods
+            ] = await Promise.all([
+                api.expenses.getAll(),
+                api.expenses.getCategories(),
+                api.expenses.getBudgets(),
+                api.expenses.getRecurring(),
+                api.expenses.getPaymentMethods()
+            ]);
 
-    useEffect(() => {
-        localStorage.setItem('expenseCategories', JSON.stringify(categories));
-    }, [categories]);
-
-    useEffect(() => {
-        localStorage.setItem('expenseBudgets', JSON.stringify(budgets));
-    }, [budgets]);
-
-    useEffect(() => {
-        localStorage.setItem('recurringExpenses', JSON.stringify(recurringExpenses));
-    }, [recurringExpenses]);
-
-    useEffect(() => {
-        localStorage.setItem('paymentMethods', JSON.stringify(paymentMethods));
-    }, [paymentMethods]);
+            setExpenses(fetchedExpenses);
+            setCategories(fetchedCategories);
+            setBudgets(fetchedBudgets);
+            setRecurringExpenses(fetchedRecurring);
+            setPaymentMethods(fetchedPaymentMethods);
+        } catch (error) {
+            console.error('Failed to load expense data:', error);
+        }
+    };
 
     // Expense CRUD operations
     const addExpense = (expense: Omit<Expense, 'id'>) => {
-        const newExpense: Expense = {
-            ...expense,
-            id: Date.now().toString(),
-        };
+        // Optimistic add
+        const tempId = Date.now().toString();
+        const newExpense: Expense = { ...expense, id: tempId };
         setExpenses(prev => [newExpense, ...prev]);
+
+        api.expenses.create(expense).then((createdExpense) => {
+            setExpenses(prev => prev.map(e => e.id === tempId ? createdExpense : e));
+        }).catch(err => {
+            console.error('Failed to add expense:', err);
+            setExpenses(prev => prev.filter(e => e.id !== tempId));
+        });
     };
 
-    const updateExpense = (id: string, updates: Partial<Expense>) => {
+    const updateExpense = async (id: string, updates: Partial<Expense>) => {
         setExpenses(prev =>
             prev.map(expense => (expense.id === id ? { ...expense, ...updates } : expense))
         );
+
+        try {
+            await api.expenses.update(id, updates);
+            const updated = await api.expenses.getAll(); // Reload to ensure consistency
+            setExpenses(updated);
+        } catch (error) {
+            console.error('Failed to update expense:', error);
+            loadData();
+        }
     };
 
-    const deleteExpense = (id: string) => {
+    const deleteExpense = async (id: string) => {
         setExpenses(prev => prev.filter(expense => expense.id !== id));
+
+        try {
+            await api.expenses.delete(id);
+        } catch (error) {
+            console.error('Failed to delete expense:', error);
+            loadData();
+        }
     };
 
-    const deleteMultipleExpenses = (ids: string[]) => {
+    const deleteMultipleExpenses = async (ids: string[]) => {
         setExpenses(prev => prev.filter(expense => !ids.includes(expense.id)));
+
+        try {
+            await Promise.all(ids.map(id => api.expenses.delete(id)));
+        } catch (error) {
+            console.error('Failed to delete multiple expenses:', error);
+            loadData();
+        }
     };
 
     // Category operations
     const addCategory = (category: Omit<ExpenseCategory, 'id'>) => {
-        const newCategory: ExpenseCategory = {
-            ...category,
-            id: Date.now().toString(),
-        };
+        const tempId = Date.now().toString();
+        const newCategory: ExpenseCategory = { ...category, id: tempId };
         setCategories(prev => [...prev, newCategory]);
+
+        api.expenses.createCategory(category).then((createdCategory) => {
+            setCategories(prev => prev.map(c => c.id === tempId ? createdCategory : c));
+        }).catch(err => {
+            console.error('Failed to add category:', err);
+            setCategories(prev => prev.filter(c => c.id !== tempId));
+        });
     };
 
-    const updateCategory = (id: string, updates: Partial<ExpenseCategory>) => {
+    const updateCategory = async (id: string, updates: Partial<ExpenseCategory>) => {
+        // Categories update not implemented in backend yet, mostly static or add/delete
+        // But if we had it:
         setCategories(prev =>
             prev.map(cat => (cat.id === id ? { ...cat, ...updates } : cat))
         );
+        // api.expenses.updateCategory(id, updates);
     };
 
-    const deleteCategory = (id: string) => {
+    const deleteCategory = async (id: string) => {
         setCategories(prev => prev.filter(cat => cat.id !== id));
+
+        try {
+            await api.expenses.deleteCategory(id);
+        } catch (error) {
+            console.error('Failed to delete category:', error);
+            loadData();
+        }
     };
 
     // Budget operations
     const addBudget = (budget: Omit<Budget, 'id'>) => {
-        const newBudget: Budget = {
-            ...budget,
-            id: Date.now().toString(),
-        };
-        setBudgets(prev => [...prev, newBudget]);
+        // Upsert logic in backend handles create/update based on category/period
+        // But frontend treats it as add.
+        // We'll just call upsert.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        api.expenses.upsertBudget(budget).then((_upsertedBudget) => {
+            // Reload budgets to reflect changes (upsert might update existing)
+            api.expenses.getBudgets().then(setBudgets);
+        }).catch(err => console.error('Failed to add budget:', err));
     };
 
-    const updateBudget = (id: string, updates: Partial<Budget>) => {
-        setBudgets(prev =>
-            prev.map(budget => (budget.id === id ? { ...budget, ...updates } : budget))
-        );
+    const updateBudget = async (id: string, updates: Partial<Budget>) => {
+        // Backend uses upsert, so we can just send the updates merged with existing
+        const existing = budgets.find(b => b.id === id);
+        if (!existing) return;
+
+        const payload = { ...existing, ...updates };
+        try {
+            await api.expenses.upsertBudget(payload);
+            const fetched = await api.expenses.getBudgets();
+            setBudgets(fetched);
+        } catch (error) {
+            console.error('Failed to update budget:', error);
+        }
     };
 
-    const deleteBudget = (id: string) => {
-        setBudgets(prev => prev.filter(budget => budget.id !== id));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const deleteBudget = (_id: string) => {
+        // Not implemented in backend
+        console.warn("Delete budget not implemented in backend");
     };
 
     // Recurring Expense operations
     const addRecurringExpense = (expense: Omit<RecurringExpense, 'id'>) => {
-        const newRecurring: RecurringExpense = {
-            ...expense,
-            id: Date.now().toString(),
-        };
+        const tempId = Date.now().toString();
+        const newRecurring: RecurringExpense = { ...expense, id: tempId };
         setRecurringExpenses(prev => [...prev, newRecurring]);
+
+        api.expenses.createRecurring(expense).then((created) => {
+            setRecurringExpenses(prev => prev.map(r => r.id === tempId ? created : r));
+        }).catch(err => {
+            console.error('Failed to add recurring expense:', err);
+            setRecurringExpenses(prev => prev.filter(r => r.id !== tempId));
+        });
     };
 
-    const updateRecurringExpense = (id: string, updates: Partial<RecurringExpense>) => {
+    const updateRecurringExpense = async (id: string, updates: Partial<RecurringExpense>) => {
         setRecurringExpenses(prev =>
             prev.map(exp => (exp.id === id ? { ...exp, ...updates } : exp))
         );
+
+        try {
+            await api.expenses.updateRecurring(id, updates);
+        } catch (error) {
+            console.error('Failed to update recurring expense:', error);
+            loadData();
+        }
     };
 
-    const deleteRecurringExpense = (id: string) => {
+    const deleteRecurringExpense = async (id: string) => {
         setRecurringExpenses(prev => prev.filter(exp => exp.id !== id));
+
+        try {
+            await api.expenses.deleteRecurring(id);
+        } catch (error) {
+            console.error('Failed to delete recurring expense:', error);
+            loadData();
+        }
     };
 
     // Payment Method operations
-    const addPaymentMethod = (method: Omit<PaymentMethod, 'id'>) => {
-        const newMethod: PaymentMethod = {
-            ...method,
-            id: Date.now().toString(),
-        };
-        setPaymentMethods(prev => [...prev, newMethod]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const addPaymentMethod = (_method: Omit<PaymentMethod, 'id'>) => {
+        // Not implemented in backend
+        console.warn("Add payment method not implemented in backend");
     };
 
-    const deletePaymentMethod = (id: string) => {
-        setPaymentMethods(prev => prev.filter(method => method.id !== id));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const deletePaymentMethod = (_id: string) => {
+        // Not implemented in backend
+        console.warn("Delete payment method not implemented in backend");
     };
 
     // Helper function to get date range for period

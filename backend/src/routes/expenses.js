@@ -12,7 +12,8 @@ import {
     upsertBudget,
     getAllRecurring,
     createRecurring,
-    updateRecurring
+    updateRecurring,
+    getAllPaymentMethods
 } from '../controllers/expenseController.js';
 
 const router = express.Router();
@@ -37,5 +38,8 @@ router.post('/budgets', upsertBudget);
 router.get('/recurring/all', getAllRecurring);
 router.post('/recurring', createRecurring);
 router.put('/recurring/:id', updateRecurring);
+
+// Payment Method routes
+router.get('/payment-methods/all', getAllPaymentMethods);
 
 export default router;

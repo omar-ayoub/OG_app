@@ -931,6 +931,12 @@ export const expenseQueries = {
       ...result.rows[0],
       startDate: new Date(result.rows[0].start_date).toISOString().split('T')[0]
     };
+  },
+
+  // Get all payment methods
+  getAllPaymentMethods: async () => {
+    const result = await pool.query('SELECT * FROM payment_methods ORDER BY name');
+    return result.rows;
   }
 };
 

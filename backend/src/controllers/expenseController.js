@@ -88,3 +88,10 @@ export const updateRecurring = asyncHandler(async (req, res) => {
     const recurring = await expenseQueries.updateRecurring(id, req.body);
     res.json(recurring);
 });
+
+// --- PAYMENT METHODS ---
+
+export const getAllPaymentMethods = asyncHandler(async (req, res) => {
+    const methods = await expenseQueries.getAllPaymentMethods();
+    res.json(methods);
+});

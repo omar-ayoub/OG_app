@@ -2,6 +2,7 @@
 import { useState, type ReactNode, useCallback, useEffect } from 'react';
 import type { Habit } from '../types';
 import { HabitContext } from './HabitContextDefinition';
+import { api } from '../services/api';
 
 // --- HELPER FUNCTIONS ---
 
@@ -15,10 +16,6 @@ const calculateStreak = (completedDates: string[]): number => {
   const sortedDates = [...completedDates].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
   const today = getTodayString();
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
-  // If not completed today or yesterday, streak is broken (unless it's early in the day and we completed yesterday)
-  // Actually, simpler logic: count backwards from most recent date.
-  // If most recent is not today or yesterday, streak is 0.
 
   const lastCompletion = sortedDates[0];
   if (lastCompletion !== today && lastCompletion !== yesterday) {
@@ -73,43 +70,54 @@ const calculateBestStreak = (completedDates: string[]): number => {
 
 // --- PROVIDER COMPONENT ---
 export function HabitProvider({ children }: { children: ReactNode }) {
-  const [habits, setHabits] = useState<Habit[]>(() => {
-    const saved = localStorage.getItem('habits');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [nextId, setNextId] = useState(() => {
-    const saved = localStorage.getItem('habits_nextId');
-    return saved ? parseInt(saved, 10) : 5;
-  });
+  const [habits, setHabits] = useState<Habit[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('habits', JSON.stringify(habits));
-    localStorage.setItem('habits_nextId', nextId.toString());
-  }, [habits, nextId]);
+    loadHabits();
+  }, []);
 
-  const toggleHabitCompletion = (id: number) => {
+  const loadHabits = async () => {
+    try {
+      const fetchedHabits = await api.habits.getAll();
+      setHabits(fetchedHabits);
+    } catch (error) {
+      console.error('Failed to load habits:', error);
+    }
+  };
+
+  const toggleHabitCompletion = async (id: number) => {
     const today = getTodayString();
-    setHabits((prevHabits) =>
-      prevHabits.map((habit) => {
-        if (habit.id === id) {
-          const isCompletedToday = habit.completedDates.includes(today);
-          let newCompletedDates;
-          if (isCompletedToday) {
-            newCompletedDates = habit.completedDates.filter(d => d !== today);
-          } else {
-            newCompletedDates = [...habit.completedDates, today];
-          }
-          return { ...habit, completedDates: newCompletedDates };
-        }
-        return habit;
-      })
-    );
+
+    // Optimistic update
+    const habit = habits.find(h => h.id === id);
+    if (!habit) return;
+
+    const isCompletedToday = habit.completedDates.includes(today);
+    let newCompletedDates;
+    if (isCompletedToday) {
+      newCompletedDates = habit.completedDates.filter(d => d !== today);
+    } else {
+      newCompletedDates = [...habit.completedDates, today];
+    }
+
+    setHabits(prev => prev.map(h =>
+      h.id === id ? { ...h, completedDates: newCompletedDates } : h
+    ));
+
+    try {
+      await api.habits.toggleCompletion(id, today);
+      loadHabits();
+    } catch (error) {
+      console.error('Failed to toggle habit completion:', error);
+      loadHabits();
+    }
   };
 
   const addHabit = (newHabitData: Partial<Habit>) => {
+    // Optimistic add with temp ID
+    const tempId = Date.now();
     const newHabit: Habit = {
-      id: nextId,
+      id: tempId,
       name: newHabitData.name || '',
       icon: newHabitData.icon || 'spa',
       completedDates: [],
@@ -118,31 +126,47 @@ export function HabitProvider({ children }: { children: ReactNode }) {
       taskIds: newHabitData.taskIds || [],
     };
     setHabits((prevHabits) => [...prevHabits, newHabit]);
-    setNextId(nextId + 1);
+
+    api.habits.create(newHabitData).then((createdHabit) => {
+      setHabits((prevHabits) => prevHabits.map(h => h.id === tempId ? createdHabit : h));
+    }).catch(err => {
+      console.error('Failed to add habit:', err);
+      setHabits(prev => prev.filter(h => h.id !== tempId));
+    });
   };
 
-  const editHabit = (habitId: number, updatedHabitData: Partial<Habit>) => {
+  const editHabit = async (habitId: number, updatedHabitData: Partial<Habit>) => {
+    // Optimistic update
     setHabits((prevHabits) =>
       prevHabits.map((habit) =>
         habit.id === habitId ? { ...habit, ...updatedHabitData } : habit
       )
     );
+
+    try {
+      await api.habits.update(habitId, updatedHabitData);
+      loadHabits();
+    } catch (error) {
+      console.error('Failed to update habit:', error);
+      loadHabits();
+    }
   };
 
-  const deleteHabit = (habitId: number) => {
+  const deleteHabit = async (habitId: number) => {
+    // Optimistic delete
     setHabits((prevHabits) => prevHabits.filter((habit) => habit.id !== habitId));
+
+    try {
+      await api.habits.delete(habitId);
+    } catch (error) {
+      console.error('Failed to delete habit:', error);
+      loadHabits();
+    }
   };
 
   const getHabit = useCallback((habitId: number): Habit | undefined => {
     return habits.find((habit) => habit.id === habitId);
   }, [habits]);
-
-  // Adapter to expose "streak" and "completedToday" dynamically for UI compatibility
-  // We wrap the habits in a proxy or just map them when returning value?
-  // Better to just expose helper functions or let the UI calculate it.
-  // But to keep it simple for now, let's expose the raw habits and let the UI use helpers if needed,
-  // OR we can map them to a "View Model" if we really wanted to avoid changing UI much.
-  // Given the instructions, I should update the UI to use the new data structure.
 
   const value = {
     habits,
@@ -151,9 +175,9 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     editHabit,
     deleteHabit,
     getHabit,
-    calculateStreak, // Expose helper
-    calculateBestStreak, // Expose helper
-    getTodayString, // Expose helper
+    calculateStreak,
+    calculateBestStreak,
+    getTodayString,
   };
 
   return <HabitContext.Provider value={value}>{children}</HabitContext.Provider>;

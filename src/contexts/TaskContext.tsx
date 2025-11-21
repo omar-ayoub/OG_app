@@ -1,67 +1,101 @@
 // src/contexts/TaskContext.tsx
-import { useState, type ReactNode, useCallback } from 'react';
-import type { Task, Category, SubTask } from '../types';
+import { useState, useEffect, type ReactNode, useCallback } from 'react';
+import type { Task, Category } from '../types';
 import { TaskContext } from './TaskContextDefinition';
+import { api } from '../services/api';
+
+// Default categories matching the database
+const DEFAULT_CATEGORIES: Category[] = [
+  { name: 'Work', color: '#5590f7' },
+  { name: 'Personal', color: '#22c55e' },
+  { name: 'Health', color: '#ef4444' },
+  { name: 'Study', color: '#f59e0b' },
+  { name: 'Shopping', color: '#8b5cf6' },
+];
 
 // --- PROVIDER COMPONENT ---
 export function TaskProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [nextId, setNextId] = useState(5);
-  const [nextSubTaskId, setNextSubTaskId] = useState(3);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
 
-  const toggleTaskCompletion = (id: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => {
-        if (task.id === id) {
-          const newIsCompleted = !task.isCompleted;
-          const updatedSubTasks =
-            task.subTasks?.map((sub) => ({
-              ...sub,
-              completed: newIsCompleted,
-            })) || [];
-          return {
-            ...task,
-            isCompleted: newIsCompleted,
-            subTasks: updatedSubTasks,
-          };
-        }
-        return task;
-      })
-    );
+  const loadTasks = useCallback(async () => {
+    try {
+      const fetchedTasks = await api.tasks.getAll();
+      setTasks(fetchedTasks);
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+    }
+  }, []);
+
+  // Fetch tasks on mount
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
+
+  const toggleTaskCompletion = async (id: number) => {
+    // Optimistic update
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newIsCompleted = !task.isCompleted;
+
+    // Update local state immediately
+    setTasks(prev => prev.map(t =>
+      t.id === id ? { ...t, isCompleted: newIsCompleted } : t
+    ));
+
+    try {
+      await api.tasks.update(id, { isCompleted: newIsCompleted });
+      // Reload to get side effects (like subtask completion) from backend
+      loadTasks();
+    } catch (error) {
+      console.error('Failed to toggle task completion:', error);
+      // Revert on error
+      loadTasks();
+    }
   };
 
   const addTask = (newTaskData: Partial<Task>): number => {
-    const newTask: Task = {
-      id: nextId,
-      text: newTaskData.text || '',
-      time: newTaskData.time || 'Anytime',
-      startDate: newTaskData.startDate,
-      endDate: newTaskData.endDate,
+    // We can't return the real ID immediately since it's async.
+    // For now, we'll return a temporary ID or 0, but the UI might depend on it.
+    const tempId = Date.now();
+
+    const newTaskPayload = {
+      ...newTaskData,
       tag: newTaskData.tag || categories[0]?.name || 'Work',
       tagColor: newTaskData.tagColor || categories[0]?.color || '#3b82f6',
-      isCompleted: false,
-      description: newTaskData.description,
-      subTasks: newTaskData.subTasks || [],
-      isRepetitive: newTaskData.isRepetitive || false,
-      repeatFrequency: newTaskData.repeatFrequency,
-      habitId: newTaskData.habitId,
     };
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-    setNextId(nextId + 1);
-    return newTask.id;
+
+    api.tasks.create(newTaskPayload).then((createdTask) => {
+      setTasks(prev => [...prev, createdTask]);
+    }).catch(err => console.error("Failed to add task", err));
+
+    return tempId;
   };
 
-  const updateTask = (taskId: number, updatedTaskData: Partial<Task>) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, ...updatedTaskData } : task
-      )
-    );
+  const updateTask = async (taskId: number, updatedTaskData: Partial<Task>) => {
+    // Optimistic update
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updatedTaskData } : t));
+
+    try {
+      await api.tasks.update(taskId, updatedTaskData);
+      loadTasks(); // Reload to ensure consistency
+    } catch (error) {
+      console.error('Failed to update task:', error);
+      loadTasks();
+    }
   };
 
-  const deleteTask = (taskId: number) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+  const deleteTask = async (taskId: number) => {
+    // Optimistic delete
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+
+    try {
+      await api.tasks.delete(taskId);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      loadTasks();
+    }
   };
 
   const getTask = useCallback((taskId: number): Task | undefined => {
@@ -70,6 +104,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
   const addCategory = (newCategory: Category) => {
     setCategories((prevCategories) => [...prevCategories, newCategory]);
+    // Note: Categories are not persisted to backend yet
   };
 
   const deleteCategory = (categoryName: string) => {
@@ -78,78 +113,44 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const addSubTask = (taskId: number, subTaskText: string) => {
-    const newSubTask: SubTask = {
-      id: nextSubTaskId,
-      text: subTaskText,
-      completed: false,
-    };
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-            ...task,
-            subTasks: [...(task.subTasks || []), newSubTask],
-          }
-          : task
-      )
-    );
-    setNextSubTaskId(nextSubTaskId + 1);
+  const addSubTask = async (taskId: number, subTaskText: string) => {
+    try {
+      await api.tasks.addSubtask(taskId, { text: subTaskText });
+      loadTasks();
+    } catch (error) {
+      console.error('Failed to add subtask:', error);
+    }
   };
 
-  const toggleSubTaskCompletion = (taskId: number, subTaskId: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => {
-        if (task.id === taskId) {
-          const updatedSubTasks = (task.subTasks || []).map((subTask) =>
-            subTask.id === subTaskId
-              ? { ...subTask, completed: !subTask.completed }
-              : subTask
-          );
+  const toggleSubTaskCompletion = async (taskId: number, subTaskId: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    const subtask = task?.subTasks?.find(s => s.id === subTaskId);
+    if (!subtask) return;
 
-          const allSubTasksCompleted = updatedSubTasks.every(
-            (subTask) => subTask.completed
-          );
-
-          return {
-            ...task,
-            isCompleted: allSubTasksCompleted,
-            subTasks: updatedSubTasks,
-          };
-        }
-        return task;
-      })
-    );
+    try {
+      await api.tasks.updateSubtask(subTaskId, { completed: !subtask.completed });
+      loadTasks();
+    } catch (error) {
+      console.error('Failed to toggle subtask:', error);
+    }
   };
 
-  const editSubTask = (taskId: number, subTaskId: number, newText: string) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-            ...task,
-            subTasks: (task.subTasks || []).map((subTask) =>
-              subTask.id === subTaskId ? { ...subTask, text: newText } : subTask
-            ),
-          }
-          : task
-      )
-    );
+  const editSubTask = async (_taskId: number, subTaskId: number, newText: string) => {
+    try {
+      await api.tasks.updateSubtask(subTaskId, { text: newText });
+      loadTasks();
+    } catch (error) {
+      console.error('Failed to edit subtask:', error);
+    }
   };
 
-  const deleteSubTask = (taskId: number, subTaskId: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-            ...task,
-            subTasks: (task.subTasks || []).filter(
-              (subTask) => subTask.id !== subTaskId
-            ),
-          }
-          : task
-      )
-    );
+  const deleteSubTask = async (_taskId: number, subTaskId: number) => {
+    try {
+      await api.tasks.deleteSubtask(subTaskId);
+      loadTasks();
+    } catch (error) {
+      console.error('Failed to delete subtask:', error);
+    }
   };
 
   const value = {
