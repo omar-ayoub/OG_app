@@ -36,8 +36,8 @@ function CreateTaskPage() {
   };
 
   const handleCreate = async () => {
-    console.log('handleCreate called');
-    console.log('Current state:', { text, tag, categories });
+    console.log('=== handleCreate called ===');
+    console.log('Current state:', { text, tag, categories, startDate, endDate });
 
     if (!text.trim()) {
       alert('Please enter a task name.');
@@ -51,9 +51,9 @@ function CreateTaskPage() {
       return;
     }
 
-    const createdTask = await addTask({
+    console.log('Calling addTask with:', {
       text,
-      time: time && time !== 'Anytime' ? time : undefined,
+      time,
       startDate,
       endDate,
       tag: selectedCategory.name,
@@ -61,25 +61,48 @@ function CreateTaskPage() {
       description,
       subTasks,
       isRepetitive,
-      repeatFrequency: isRepetitive ? repeatFrequency : undefined,
-      habitId: habitId || undefined,
+      repeatFrequency,
     });
 
-    if (!createdTask) {
-      alert('Failed to create task');
-      return;
-    }
+    try {
+      const createdTask = await addTask({
+        text,
+        time: time && time !== 'Anytime' ? time : undefined,
+        startDate,
+        endDate,
+        tag: selectedCategory.name,
+        tagColor: selectedCategory.color,
+        description,
+        subTasks,
+        isRepetitive,
+        repeatFrequency: isRepetitive ? repeatFrequency : undefined,
+        habitId: habitId || undefined,
+      });
 
-    const from = location.state?.from;
-    const goalData = location.state?.goalData;
+      console.log('Created task result:', createdTask);
 
-    if (from && goalData && from === `/goal-details/${goalData.id}`) {
-      const updatedGoalTasks = [...(goalData.tasks || []), createdTask.id];
-      navigate(from, { state: { goalData: { ...goalData, tasks: updatedGoalTasks } } });
-    } else if (from === '/create-goal' && goalData) {
-      navigate(from, { state: { newTaskId: createdTask.id, goalData } });
-    } else {
-      navigate('/');
+      if (!createdTask) {
+        console.error('addTask returned undefined');
+        alert('Failed to create task - please check the console for details');
+        return;
+      }
+
+      console.log('Task created successfully, navigating...');
+
+      const from = location.state?.from;
+      const goalData = location.state?.goalData;
+
+      if (from && goalData && from === `/goal-details/${goalData.id}`) {
+        const updatedGoalTasks = [...(goalData.tasks || []), createdTask.id];
+        navigate(from, { state: { goalData: { ...goalData, tasks: updatedGoalTasks } } });
+      } else if (from === '/create-goal' && goalData) {
+        navigate(from, { state: { newTaskId: createdTask.id, goalData } });
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error in handleCreate:', error);
+      alert(`Failed to create task: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
