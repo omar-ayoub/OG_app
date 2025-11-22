@@ -5,9 +5,11 @@ const BASE_URL = '/api';
 // Helper to convert snake_case to camelCase
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toCamelCase = (obj: any): any => {
+    if (obj === null || typeof obj === 'undefined') return obj;
+
     if (Array.isArray(obj)) {
         return obj.map(v => toCamelCase(v));
-    } else if (obj !== null && obj.constructor === Object) {
+    } else if (typeof obj === 'object' && obj.constructor === Object) {
         return Object.keys(obj).reduce(
             (result, key) => {
                 const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
@@ -24,9 +26,11 @@ const toCamelCase = (obj: any): any => {
 // Helper to convert camelCase to snake_case
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toSnakeCase = (obj: any): any => {
+    if (obj === null || typeof obj === 'undefined') return obj;
+
     if (Array.isArray(obj)) {
         return obj.map(v => toSnakeCase(v));
-    } else if (obj !== null && obj.constructor === Object) {
+    } else if (typeof obj === 'object' && obj.constructor === Object) {
         return Object.keys(obj).reduce(
             (result, key) => {
                 const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);

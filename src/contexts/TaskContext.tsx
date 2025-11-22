@@ -66,22 +66,21 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addTask = (newTaskData: Partial<Task>): number => {
-    // We can't return the real ID immediately since it's async.
-    // For now, we'll return a temporary ID or 0, but the UI might depend on it.
-    const tempId = Date.now();
-
+  const addTask = async (newTaskData: Partial<Task>): Promise<Task | undefined> => {
     const newTaskPayload = {
       ...newTaskData,
       tag: newTaskData.tag || categories[0]?.name || 'Work',
       tagColor: newTaskData.tagColor || categories[0]?.color || '#3b82f6',
     };
 
-    api.tasks.create(newTaskPayload).then((createdTask) => {
+    try {
+      const createdTask = await api.tasks.create(newTaskPayload);
       setTasks(prev => [...prev, createdTask]);
-    }).catch(err => console.error("Failed to add task", err));
-
-    return tempId;
+      return createdTask;
+    } catch (err) {
+      console.error("Failed to add task", err);
+      return undefined;
+    }
   };
 
   const updateTask = async (taskId: number, updatedTaskData: Partial<Task>) => {

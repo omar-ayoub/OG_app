@@ -7,7 +7,7 @@ export type TaskContextType = {
   tasks: Task[];
   categories: Category[];
   toggleTaskCompletion: (id: number) => void;
-  addTask: (newTaskData: Partial<Task>) => number;
+  addTask: (newTaskData: Partial<Task>) => Promise<Task | undefined>;
 
   deleteTask: (taskId: number) => void;
   getTask: (taskId: number) => Task | undefined;

@@ -35,20 +35,25 @@ function CreateTaskPage() {
     }
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
+    console.log('handleCreate called');
+    console.log('Current state:', { text, tag, categories });
+
     if (!text.trim()) {
       alert('Please enter a task name.');
       return;
     }
     const selectedCategory = categories.find(c => c.name === tag);
+    console.log('Selected category:', selectedCategory);
+
     if (!selectedCategory) {
       alert('Please select a valid category.');
       return;
     }
 
-    const newTaskId = addTask({
+    const createdTask = await addTask({
       text,
-      time: time || 'Anytime',
+      time: time && time !== 'Anytime' ? time : undefined,
       startDate,
       endDate,
       tag: selectedCategory.name,
@@ -60,14 +65,19 @@ function CreateTaskPage() {
       habitId: habitId || undefined,
     });
 
+    if (!createdTask) {
+      alert('Failed to create task');
+      return;
+    }
+
     const from = location.state?.from;
     const goalData = location.state?.goalData;
 
     if (from && goalData && from === `/goal-details/${goalData.id}`) {
-      const updatedGoalTasks = [...(goalData.tasks || []), newTaskId];
+      const updatedGoalTasks = [...(goalData.tasks || []), createdTask.id];
       navigate(from, { state: { goalData: { ...goalData, tasks: updatedGoalTasks } } });
     } else if (from === '/create-goal' && goalData) {
-      navigate(from, { state: { newTaskId, goalData } });
+      navigate(from, { state: { newTaskId: createdTask.id, goalData } });
     } else {
       navigate('/');
     }
